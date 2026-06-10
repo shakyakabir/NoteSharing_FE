@@ -1,5 +1,7 @@
+"use client";
 import React from "react";
 import { ThumbsUp, MessageSquare, Bookmark, Sparkles } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export interface NoteCardProps {
   category: string;
@@ -28,6 +30,10 @@ export default function NoteCard({
   comments,
   isBookmarked = false,
 }: NoteCardProps) {
+  const route = useRouter();
+  const handleDetail = () => {
+    route.push("/discover/advanced-quantum-computing-principles");
+  };
   return (
     <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
       {/* Thumbnail Header Background Banner */}
@@ -56,9 +62,12 @@ export default function NoteCard({
       {/* Main Metadata Body */}
       <div className="p-5 flex-1 flex flex-col justify-between">
         <div>
-          <h3 className="font-bold text-slate-800 text-base leading-snug line-clamp-2 tracking-tight group-hover:text-indigo-600 transition-colors">
+          <button
+            onClick={handleDetail}
+            className="font-bold text-slate-800 text-base leading-snug line-clamp-2 tracking-tight group-hover:text-indigo-600 transition-colors"
+          >
             {title}
-          </h3>
+          </button>
 
           {/* Author Block */}
           <div className="flex items-center space-x-2.5 mt-4">

@@ -1,51 +1,51 @@
+import Config from "@/config/Index";
 import {
   BaseQueryFn,
   FetchArgs,
-  fetchBaseQuery,
   FetchBaseQueryError,
+  fetchBaseQuery,
 } from "@reduxjs/toolkit/query/react";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: "http://localhost:8080/api",
-
-  // IMPORTANT
+  baseUrl: Config.baseUrl,
   credentials: "include",
 });
-
-const baseQueryWithRefresh: BaseQueryFn<
+const customBaseQuery: BaseQueryFn<
   string | FetchArgs,
   unknown,
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
-  // First request
+  // NORMAL REQUEST
   let result = await baseQuery(args, api, extraOptions);
-
-  // If unauthorized
-  if (result.error && result.error.status === 401) {
-    console.log("Access token expired");
-
-    // Try refresh
+  console.log("BaseApi result:", result);
+  // ACCESS TOKEN EXPIRED
+  if (
+    result.error &&
+    (result.error.status === 401 || result.error.status === "FETCH_ERROR")
+  ) {
+    // TRY REFRESH TOKEN
     const refreshResult = await baseQuery(
       {
-        url: "/refresh",
+        url: "/auth/refresh",
         method: "POST",
       },
       api,
       extraOptions,
     );
 
-    // Refresh success
+    // REFRESH SUCCESS
     if (refreshResult.data) {
-      console.log("Token refreshed");
-
-      // Retry original request
+      // RETRY ORIGINAL REQUEST
       result = await baseQuery(args, api, extraOptions);
     } else {
-      console.log("Refresh failed");
+      console.log("Session expired");
+
+      // OPTIONAL LOGOUT REDIRECT
+      // window.location.href = "/login";
     }
   }
 
   return result;
 };
 
-export default baseQueryWithRefresh;
+export default customBaseQuery;
