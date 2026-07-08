@@ -2,7 +2,12 @@
 import React from "react";
 import { Plus, Presentation, Lightbulb, Star } from "lucide-react";
 
-export default function EmptyPresentationState() {
+interface EmptyPresentationProps {
+  handleOnClick: () => void;
+}
+export default function EmptyPresentationState({
+  handleOnClick,
+}: EmptyPresentationProps) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] px-4 text-center bg-[#FDFDFE] select-none">
       {/* 1. LAYERED CARDS GRAPHIC */}
@@ -33,7 +38,10 @@ export default function EmptyPresentationState() {
       </div>
 
       {/* 3. PRIMARY CTA BUTTON */}
-      <button className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-5 py-3 rounded-xl transition-colors duration-200 shadow-md shadow-indigo-600/10 flex items-center justify-center space-x-2 mb-6">
+      <button
+        onClick={handleOnClick}
+        className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-5 py-3 rounded-xl transition-colors duration-200 shadow-md shadow-indigo-600/10 flex items-center justify-center space-x-2 mb-6"
+      >
         <Presentation size={15} />
         <span>Create New Presentation</span>
       </button>
