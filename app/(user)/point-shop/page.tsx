@@ -6,7 +6,7 @@ import TransactionHistory from "./components/TransactionHistory";
 
 export default function RewardsDashboard() {
   return (
-    <div className="min-h-screen bg-[#F9FAFD] p-4 md:p-10 max-w-5xl mx-auto space-y-8 relative pb-24">
+    <div className="min-h-screen bg-[#F9FAFD] w-full  space-y-8 relative pb-24">
       {/* Balance Top Header */}
       <BalanceBanner />
 

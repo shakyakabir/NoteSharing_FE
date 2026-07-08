@@ -27,12 +27,29 @@ export const NoteSlice = createApi({
         params: { email: "xiregev461@getasail.com" },
       }),
     }),
+
     updateNotes: builder.mutation({
       query: ({ noteData, id }) => ({
         url: `/notes/${id}`,
         method: "PUT",
         body: noteData,
         params: { email: "xiregev461@getasail.com" },
+      }),
+    }),
+
+    PostQuiz: builder.mutation({
+      query: (QuizNote) => ({
+        url: `/from-note`,
+        method: "POST",
+        body: QuizNote,
+        params: { email: "xiregev461@getasail.com" },
+      }),
+    }),
+    getQuizID: builder.query({
+      query: (id) => ({
+        url: `/quiz/${id}`,
+        method: "GET",
+        // params: { email: "xiregev461@getasail.com" },
       }),
     }),
   }),
@@ -42,4 +59,6 @@ export const {
   usePostNotesMutation,
   useUpdateNotesMutation,
   useGetNotesIDQuery,
+  usePostQuizMutation,
+  useGetQuizIDQuery,
 } = NoteSlice;
