@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import {
   Bookmark,
@@ -11,119 +12,16 @@ import {
   Sliders,
   Award,
 } from "lucide-react";
+import { useParams } from "next/navigation";
+import { useGetPublicNotesIDQuery } from "@/slices/Note";
 
-const data = {
-  id: "advanced-quantum-computing-principles",
-  breadcrumbs: ["Discover", "Physics", "Quantum Computing"],
-  title: "Advanced Quantum Computing Principles",
-  author: {
-    name: "Julian Thorne",
-    initials: "JT",
-    postedAt: "2 days ago",
-    readTime: "12 min read",
-  },
-  metrics: {
-    likes: "1.2k",
-    comments: 84,
-    viewsText: "Viewed by 5k students",
-  },
-  content: [
-    {
-      type: "section",
-      heading: "1. Introduction to Superposition",
-      paragraphs: [
-        "At the core of quantum computing lies the principle of superposition. Unlike a classical bit, which exists as either 0 or 1, a quantum bit (qubit) can exist in a linear combination of both states simultaneously. This fundamental property allows quantum computers to process massive amounts of information in parallel.",
-      ],
-      codeBlock: {
-        language: "qsharp",
-        comment: "// Example of a simple Qubit state in Q#",
-        lines: [
-          {
-            text: "operation ",
-            highlight: "text-emerald-400",
-            child: { text: "InitializeQubit", highlight: "text-sky-400" },
-            suffix: "() : Unit {",
-          },
-          {
-            text: "use q = Qubit();",
-            indent: true,
-            highlight: "text-slate-400",
-          },
-          {
-            text: "H(q); ",
-            indent: true,
-            highlight: "text-amber-400",
-            comment: "// Applies the Hadamard gate to create superposition",
-          },
-          {
-            text: "let result = M(q);",
-            indent: true,
-            highlight: "text-slate-400",
-          },
-          { text: "Reset(q);", indent: true, highlight: "text-slate-400" },
-          { text: "}", highlight: "text-emerald-400" },
-        ],
-      },
-    },
-    {
-      type: "section",
-      heading: '2. Entanglement: "Spooky Action at a Distance"',
-      paragraphs: [
-        "Entanglement is a phenomenon where qubits become interconnected such that the state of one qubit instantaneously influences the state of another, regardless of the distance between them. This is essential for quantum teleportation and dense coding protocols.",
-      ],
-      callout: {
-        title: "Key Concept: The Bell State",
-        text: "The Bell state represents the simplest example of quantum entanglement between two qubits.",
-      },
-    },
-    {
-      type: "section",
-      heading: "3. Quantum Decoherence",
-      paragraphs: [
-        'One of the primary challenges in building a practical quantum computer is decoherence. This is the process where a quantum system loses its "quantumness" due to interaction with the external environment. Maintaining high-fidelity qubits requires extremely low temperatures and sophisticated error-correction codes.',
-        "Researchers are currently focusing on **Surface Codes** as a robust method for quantum error correction, which could pave the way for fault-tolerant quantum computing in the next decade.",
-      ],
-    },
-  ],
-  intelligenceEngine: {
-    isPro: true,
-    summary:
-      "This note provides a comprehensive overview of quantum computing fundamentals, focusing on superposition, entanglement, and the critical challenge of decoherence. It explores how qubits leverage quantum states to achieve parallel processing and the theoretical requirements for fault-tolerant hardware.",
-    keyInsights: [
-      "Superposition allows qubits to process $2^n$ states simultaneously.",
-      "Entanglement is the backbone of quantum communication protocols.",
-      "Surface codes are required to mitigate high decoherence rates.",
-      "The Hadamard gate is the primary mechanism for qubit initialization.",
-    ],
-    gamification: {
-      currentPoints: 1250,
-      targetPoints: 2000,
-      text: "Earning 1250 / 2000 Amber for Daily Goal",
-    },
-  },
-};
-
-// Helper component to format inline strings like **bold strings**
-const FormattedText = ({ text }) => {
-  if (!text.includes("**")) return <span>{text}</span>;
-  const parts = text.split(/\*\*([^*]+)\*\*/g);
-  return (
-    <span>
-      {parts.map((part, index) =>
-        index % 2 === 1 ? (
-          <strong key={index} className="text-slate-900 font-semibold">
-            {part}
-          </strong>
-        ) : (
-          part
-        ),
-      )}
-    </span>
-  );
-};
 
 export default function QuantumArticle() {
+  const params = useParams();
+
+  const { data } = useGetPublicNotesIDQuery(params.id);
   // Graceful fallback if dynamic item context isn't fully loaded yet
+  console.log(data);
   if (!data)
     return (
       <div className="p-8 text-center text-sm text-slate-500">
@@ -163,14 +61,15 @@ export default function QuantumArticle() {
           <div className="flex items-center justify-between border-b border-slate-100 pb-6 mb-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden flex items-center justify-center text-slate-600 font-bold">
-                {data.author?.initials}
+                {data.author?.initials || "NA"}
               </div>
               <div>
                 <h4 className="text-sm font-semibold text-slate-900">
-                  {data.author?.name}
+                  {data.author?.name || "NA"}
                 </h4>
                 <p className="text-xs text-slate-500">
-                  Posted {data.author?.postedAt} • {data.author?.readTime}
+                  Posted {data.author?.postedAt || "NA"} •{" "}
+                  {data.author?.readTime || "NA"}
                 </p>
               </div>
             </div>
@@ -186,57 +85,14 @@ export default function QuantumArticle() {
 
           {/* Dynamic Article Body */}
           <div className="space-y-6 text-sm md:text-base leading-relaxed text-slate-700">
-            {data.content?.map((section, sIdx) => (
-              <section key={sIdx}>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">
-                  {section.heading}
-                </h3>
-
-                {section.paragraphs?.map((pText, pIdx) => (
-                  <p key={pIdx} className="mb-3 last:mb-0">
-                    <FormattedText text={pText} />
-                  </p>
-                ))}
-
-                {/* Optional Dynamic Q# Code Block */}
-                {section.codeBlock && (
-                  <div className="bg-slate-900 rounded-xl p-4 font-mono text-xs md:text-sm text-slate-300 overflow-x-auto shadow-inner mt-4">
-                    <p className="text-slate-500 mb-1">
-                      {section.codeBlock.comment}
-                    </p>
-                    {section.codeBlock.lines?.map((line, lIdx) => (
-                      <p key={lIdx} className={line.indent ? "pl-4" : ""}>
-                        <span className={line.highlight}>{line.text}</span>
-                        {line.child && (
-                          <span className={line.child.highlight}>
-                            {line.child.text}
-                          </span>
-                        )}
-                        {line.suffix && <span>{line.suffix}</span>}
-                        {line.comment && (
-                          <span className="text-slate-500">
-                            {" "}
-                            {line.comment}
-                          </span>
-                        )}
-                      </p>
-                    ))}
-                  </div>
-                )}
-
-                {/* Optional Dynamic Callout Box */}
-                {section.callout && (
-                  <div className="bg-indigo-50/60 border-l-4 border-indigo-500 rounded-r-xl p-4 my-4">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-700 mb-1">
-                      {section.callout.title}
-                    </h4>
-                    <p className="text-sm italic text-indigo-900">
-                      {section.callout.text}
-                    </p>
-                  </div>
-                )}
-              </section>
-            ))}
+            <section className="mb-8">
+              <div
+                className="prose prose-slate max-w-none"
+                dangerouslySetInnerHTML={{
+                  __html: data.content || "",
+                }}
+              />
+            </section>
           </div>
 
           {/* Footer Metrics */}

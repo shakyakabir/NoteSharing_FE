@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 
 import { FileText, Eye, DollarSign, Cpu } from "lucide-react";
@@ -7,8 +8,15 @@ import RecentNotes from "./components/RecentNotes";
 import QuizPointsCard from "./components/QuizPointsCard";
 import TopContributors from "./components/TopContributors";
 import EarningsGrowth from "./components/EarningsGrowth";
+import { useGetNotesQuery } from "@/slices/Note";
+import { useGetPointBalanceQuery } from "@/slices/Reward";
 
 export default function Dashboard() {
+  const { data: notes = [], isLoading } = useGetNotesQuery();
+  const { data: balance, isLoading: isBalanceLoading } =
+    useGetPointBalanceQuery();
+  console.log(balance, "balance");
+  const totalNotes = notes.length;
   return (
     <div className="min-h-screen bg-[#fcfcfd] p-6 text-slate-800 font-sans">
       {/* Top Row: Stat Cards */}
@@ -17,7 +25,7 @@ export default function Dashboard() {
           icon={<FileText className="w-5 h-5 text-amber-600" />}
           iconBg="bg-amber-50"
           title="Total Notes"
-          value="1,248"
+          value={totalNotes.toString()}
           badge="+12% vs last week"
           badgeColor="text-emerald-600"
         />
@@ -25,7 +33,7 @@ export default function Dashboard() {
           icon={<Eye className="w-5 h-5 text-sky-600" />}
           iconBg="bg-sky-50"
           title="Quizz"
-          value="42.8"
+          value={balance?.pointBalance.toString() || "0"}
           badge="+5.4k"
           badgeColor="text-sky-600"
         />
@@ -33,7 +41,7 @@ export default function Dashboard() {
           icon={<DollarSign className="w-5 h-5 text-amber-700" />}
           iconBg="bg-amber-100"
           title="Learning Streak"
-          value="8 day"
+          value={balance?.streakDays.toString() || "0"}
           badge="Active Rewards"
           badgeColor="text-slate-500 font-normal"
         />
@@ -41,7 +49,7 @@ export default function Dashboard() {
           icon={<Cpu className="w-5 h-5 text-amber-800" />}
           iconBg="bg-amber-100"
           title="AI Credits"
-          value="850 / 1000"
+          value={balance?.aiQuotaUsed.toString() || "0"}
           badge="Refreshes in 4d"
           badgeColor="text-slate-500 font-normal"
           progressBar={{ current: 850, total: 1000 }}
@@ -54,13 +62,13 @@ export default function Dashboard() {
           <SmartActions />
 
           {/* Bottom Row: Recent Notes */}
-          <RecentNotes />
+          <RecentNotes notes={notes} />
         </div>
 
         {/* RIGHT COLUMN */}
         <div className="space-y-6">
           <QuizPointsCard />
-          <TopContributors />
+          {/* <TopContributors /> */}
           <EarningsGrowth />
         </div>
       </div>

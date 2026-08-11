@@ -4,6 +4,7 @@ import { ThumbsUp, MessageSquare, Bookmark, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export interface NoteCardProps {
+  id: string;
   category: string;
   categoryBg: string;
   categoryText: string;
@@ -11,7 +12,7 @@ export interface NoteCardProps {
   title: string;
   authorName: string;
   authorImage: string;
-  timeAgo: string;
+  createdAt: string;
   likes: number;
   comments: number;
   isBookmarked?: boolean;
@@ -24,15 +25,16 @@ export default function NoteCard({
   hasAiSummary,
   title,
   authorName,
+  id,
   authorImage,
-  timeAgo,
+  createdAt,
   likes,
   comments,
   isBookmarked = false,
 }: NoteCardProps) {
   const route = useRouter();
-  const handleDetail = () => {
-    route.push("/discover/advanced-quantum-computing-principles");
+  const handleDetail = (noteId: string) => {
+    route.push(`/discover/${noteId}`);
   };
   return (
     <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
@@ -63,7 +65,7 @@ export default function NoteCard({
       <div className="p-5 flex-1 flex flex-col justify-between">
         <div>
           <button
-            onClick={handleDetail}
+            onClick={() => handleDetail(id)}
             className="font-bold text-slate-800 text-base leading-snug line-clamp-2 tracking-tight group-hover:text-indigo-600 transition-colors"
           >
             {title}
@@ -80,9 +82,11 @@ export default function NoteCard({
             </div>
             <div className="min-w-0">
               <p className="text-xs font-semibold text-slate-700 line-clamp-1">
-                {authorName}
+                {authorName || " test"}
               </p>
-              <p className="text-[10px] text-slate-400 mt-0.5">{timeAgo}</p>
+              <p className="text-[10px] text-slate-400 mt-0.5">
+                {new Date(createdAt).toLocaleDateString()}
+              </p>
             </div>
           </div>
         </div>

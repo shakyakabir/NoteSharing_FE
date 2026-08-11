@@ -2,7 +2,15 @@
 import React from "react";
 import { FileUp } from "lucide-react";
 
-export default function SourceUploadSection() {
+interface SourceUploadSectionProps {
+  value?: string;
+  onChange?: (value: string) => void;
+}
+
+export default function SourceUploadSection({
+  value = "",
+  onChange,
+}: SourceUploadSectionProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
       {/* File Drop Box zone */}
@@ -28,6 +36,8 @@ export default function SourceUploadSection() {
           <span className="text-slate-700">Paste Notes</span>
         </div>
         <textarea
+          value={value}
+          onChange={(e) => onChange?.(e.target.value)}
           placeholder="Paste your research notes, article text, or lecture transcript here..."
           className="w-full flex-1 bg-slate-50 border border-slate-100/50 rounded-xl p-3.5 text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-indigo-500/30 transition-all resize-none leading-relaxed"
         />

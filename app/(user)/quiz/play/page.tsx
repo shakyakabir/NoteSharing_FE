@@ -72,7 +72,7 @@
 
 "use client";
 
-import { useGetQuizIDQuery } from "@/slices/Note";
+import { useGetQuizIDQuery, usePlayQuizMutation } from "@/slices/Note";
 import { useEffect, useState } from "react";
 
 // Types for better clarity and safety
@@ -86,10 +86,10 @@ export default function QuizPlay() {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [quizResult, setQuizResult] = useState<any>(null);
+  const [playQuiz] = usePlayQuizMutation();
+  const quizId = "57dd2e64-41a6-4d1b-8064-2f5349053323";
 
-  const { data, isLoading, error } = useGetQuizIDQuery(
-    "57dd2e64-41a6-4d1b-8064-2f5349053323",
-  );
+  const { data, isLoading, error } = useGetQuizIDQuery(quizId);
 
   useEffect(() => {
     if (data?.questionsJson) {
@@ -124,19 +124,7 @@ export default function QuizPlay() {
         answer: answers[parseInt(key)],
       }));
 
-      const res = await fetch(
-        "http://localhost:8080/api/play?quizId=57dd2e64-41a6-4d1b-8064-2f5349053323&email=xiregev461%40getasail.com",
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        },
-      );
-
-      const result = await res.json();
+      const result = await playQuiz({ quizId, answers: payload }).unwrap();
       setQuizResult(result);
       console.log(result);
     } catch (err) {

@@ -1,6 +1,8 @@
+"use client";
 import React from "react";
 import { SlidersHorizontal, Sliders } from "lucide-react";
 import NoteCard, { NoteCardProps } from "../components/Card/NoteCard";
+import { useGetPublicNotesQuery } from "@/slices/Note";
 
 export default function DiscoverNotesPage() {
   const notesMockData: NoteCardProps[] = [
@@ -90,6 +92,8 @@ export default function DiscoverNotesPage() {
     },
   ];
 
+  const { data } = useGetPublicNotesQuery();
+
   return (
     <div className="space-y-8">
       {/* Header section with Filter controls */}
@@ -118,7 +122,7 @@ export default function DiscoverNotesPage() {
 
       {/* Main Grid Framework layout stream */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {notesMockData.map((note, index) => (
+        {data?.map((note, index) => (
           <NoteCard key={index} {...note} />
         ))}
       </div>

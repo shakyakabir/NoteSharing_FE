@@ -4,15 +4,21 @@ import TextInputArea from "../components/TextInputArea";
 import UploadZone from "../components/UploadZone";
 import Breadcrumbs from "../components/Breadcrumbs";
 import { useState } from "react";
+import { useSummarizeMutation } from "@/slices/Ai";
 
 const Summarizer = () => {
   const [textInput, setTextInput] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [summary, setSummary] = useState("");
+  const [summarize, { isLoading: isProcessing }] = useSummarizeMutation();
 
-  const handleGenerate = () => {
-    setIsProcessing(true);
-    // Simulation logic handler for generation processing tracking
-    setTimeout(() => setIsProcessing(false), 2000);
+  const handleGenerate = async () => {
+    const result = await summarize({
+      title: "Generated Summary",
+      sourceContent: textInput,
+      reportType: "SUMMARY",
+    }).unwrap();
+
+    setSummary(result?.content || "");
   };
 
   return (
@@ -76,6 +82,17 @@ const Summarizer = () => {
           </button>
         </div>
       </div>
+
+      {summary && (
+        <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
+          <h2 className="text-base font-bold text-slate-800 mb-3">
+            Generated Summary
+          </h2>
+          <pre className="whitespace-pre-wrap text-xs leading-relaxed text-slate-600 font-sans">
+            {summary}
+          </pre>
+        </div>
+      )}
     </div>
   );
 };

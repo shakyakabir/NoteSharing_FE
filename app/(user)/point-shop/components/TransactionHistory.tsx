@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { ChevronDown, ArrowUpRight, ArrowDownLeft } from "lucide-react";
+import { useGetTransactionsQuery } from "@/slices/Reward";
 
 interface Transaction {
   id: number;
@@ -11,7 +12,8 @@ interface Transaction {
 }
 
 export default function TransactionHistory() {
-  const transactions: Transaction[] = [
+  const { data } = useGetTransactionsQuery();
+  const fallbackTransactions: Transaction[] = [
     {
       id: 1,
       description: "Quiz: Anatomy 101 Mastery",
@@ -41,6 +43,15 @@ export default function TransactionHistory() {
       amount: 300,
     },
   ];
+  const transactions = data?.length
+    ? data.map((tx: any) => ({
+        id: tx.id,
+        description: tx.description,
+        date: new Date(tx.createdAt).toLocaleDateString(),
+        status: tx.type,
+        amount: tx.amount,
+      }))
+    : fallbackTransactions;
 
   return (
     <div className="space-y-4">

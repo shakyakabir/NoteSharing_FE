@@ -2,8 +2,17 @@
 import React, { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 
-export default function ThemeCustomization() {
-  const [selectedTheme, setSelectedTheme] = useState("professional");
+interface ThemeCustomizationProps {
+  selectedTheme?: string;
+  onThemeChange?: (theme: string) => void;
+}
+
+export default function ThemeCustomization({
+  selectedTheme: controlledTheme,
+  onThemeChange,
+}: ThemeCustomizationProps) {
+  const [localTheme, setLocalTheme] = useState("professional");
+  const selectedTheme = controlledTheme || localTheme;
 
   const themes = [
     {
@@ -39,7 +48,10 @@ export default function ThemeCustomization() {
           return (
             <button
               key={theme.id}
-              onClick={() => setSelectedTheme(theme.id)}
+              onClick={() => {
+                setLocalTheme(theme.id);
+                onThemeChange?.(theme.id);
+              }}
               className={`relative border rounded-2xl overflow-hidden bg-white text-left transition-all ${
                 isSelected
                   ? "border-indigo-600 ring-1 ring-indigo-600/30"

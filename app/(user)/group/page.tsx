@@ -1,6 +1,13 @@
+"use client";
+
 import React from "react";
 import GroupCardFeatured from "./components/GroupCardFeatured";
 import GroupCardSimple from "./components/GroupCardSimple";
+import {
+  useCreateCommunityMutation,
+  useGetCommunitiesQuery,
+  useJoinCommunityMutation,
+} from "@/slices/Community";
 
 // Mock data based on the image
 const featuredGroup = {
@@ -32,6 +39,28 @@ const simpleGroups = [
 ];
 
 export default function StudyGroupsPage() {
+  const { data: communities } = useGetCommunitiesQuery();
+  const [createCommunity, { isLoading }] = useCreateCommunityMutation();
+  const [joinCommunity] = useJoinCommunityMutation();
+
+  const handleCreateGroup = async () => {
+    await createCommunity({
+      name: "New Study Group",
+      category: "General",
+      description: "A shared group for collaborative study sessions.",
+    });
+  };
+
+  const visibleGroups = communities?.length
+    ? communities.map((community: any) => ({
+        id: community.id,
+        title: community.name,
+        memberCount: "Join group",
+        description: community.description,
+        icon: "monument",
+      }))
+    : simpleGroups;
+
   return (
     <div className="min-h-screen bg-[#FAFAFE] text-[#1E1B4B]">
       {/* Main Content */}
@@ -44,7 +73,11 @@ export default function StudyGroupsPage() {
               Join a community of learners or start your own group.
             </p>
           </div>
-          <button className="flex items-center justify-center gap-2 bg-[#4F46E5] hover:bg-[#4338CA] text-white px-5 py-2.5 rounded-xl font-medium text-sm shadow-sm transition-colors self-start sm:self-center">
+          <button
+            onClick={handleCreateGroup}
+            disabled={isLoading}
+            className="flex items-center justify-center gap-2 bg-[#4F46E5] hover:bg-[#4338CA] disabled:bg-indigo-300 text-white px-5 py-2.5 rounded-xl font-medium text-sm shadow-sm transition-colors self-start sm:self-center"
+          >
             <svg
               className="w-5 h-5"
               fill="none"
@@ -58,7 +91,7 @@ export default function StudyGroupsPage() {
                 d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            Create Group
+            {isLoading ? "Creating..." : "Create Group"}
           </button>
         </div>
 
@@ -70,8 +103,12 @@ export default function StudyGroupsPage() {
           </div>
 
           {/* Render regular group cards */}
-          {simpleGroups.map((group, index) => (
-            <div key={index} className="col-span-1">
+          {visibleGroups.map((group: any, index: number) => (
+            <div
+              key={group.id || index}
+              className="col-span-1"
+              onClick={() => group.id && joinCommunity(group.id)}
+            >
               <GroupCardSimple group={group} />
             </div>
           ))}

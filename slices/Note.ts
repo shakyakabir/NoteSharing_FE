@@ -1,3 +1,4 @@
+import Config from "@/config/Index";
 import customBaseQuery from "@/service/BaseApi";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
@@ -9,14 +10,26 @@ export const NoteSlice = createApi({
       query: () => ({
         url: `/notes`,
         method: "GET",
-        params: { email: "xiregev461@getasail.com" },
+        params: { email: Config.defaultEmail },
+      }),
+    }),
+    getPublicNotes: builder.query<any, void>({
+      query: () => ({
+        url: `/notes/public`,
+        method: "GET",
       }),
     }),
     getNotesID: builder.query({
       query: (id) => ({
         url: `/notes/${id}`,
         method: "GET",
-        params: { email: "xiregev461@getasail.com" },
+        params: { email: Config.defaultEmail },
+      }),
+    }),
+    getPublicNotesID: builder.query({
+      query: (id) => ({
+        url: `/notes/public/${id}`,
+        method: "GET",
       }),
     }),
     PostNotes: builder.mutation({
@@ -24,7 +37,7 @@ export const NoteSlice = createApi({
         url: `/notes`,
         method: "POST",
         body: noteData,
-        params: { email: "xiregev461@getasail.com" },
+        params: { email: Config.defaultEmail },
       }),
     }),
 
@@ -32,8 +45,9 @@ export const NoteSlice = createApi({
       query: ({ noteData, id }) => ({
         url: `/notes/${id}`,
         method: "PUT",
+        // body: noteData?.content ?? noteData,
         body: noteData,
-        params: { email: "xiregev461@getasail.com" },
+        params: { email: Config.defaultEmail },
       }),
     }),
 
@@ -42,7 +56,7 @@ export const NoteSlice = createApi({
         url: `/from-note`,
         method: "POST",
         body: QuizNote,
-        params: { email: "xiregev461@getasail.com" },
+        params: { email: Config.defaultEmail },
       }),
     }),
     getQuizID: builder.query({
@@ -52,13 +66,24 @@ export const NoteSlice = createApi({
         // params: { email: "xiregev461@getasail.com" },
       }),
     }),
+    playQuiz: builder.mutation({
+      query: ({ quizId, answers }) => ({
+        url: `/play`,
+        method: "POST",
+        body: answers,
+        params: { quizId, email: Config.defaultEmail },
+      }),
+    }),
   }),
 });
 export const {
   useGetNotesQuery,
+  useGetPublicNotesQuery,
+  useGetPublicNotesIDQuery,
   usePostNotesMutation,
   useUpdateNotesMutation,
   useGetNotesIDQuery,
   usePostQuizMutation,
   useGetQuizIDQuery,
+  usePlayQuizMutation,
 } = NoteSlice;

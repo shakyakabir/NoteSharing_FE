@@ -1,7 +1,11 @@
 "use client";
 import React from "react";
+import { useGetPointBalanceQuery } from "@/slices/Reward";
 
 export default function BalanceBanner() {
+  const { data } = useGetPointBalanceQuery();
+  const points = data?.pointBalance ?? 2450;
+
   return (
     <div className="bg-white border border-slate-100 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-sm">
       <div className="space-y-1">
@@ -9,7 +13,9 @@ export default function BalanceBanner() {
           Your Current Balance
         </p>
         <div className="flex items-baseline space-x-2">
-          <span className="text-4xl font-black text-[#D97706]">2,450</span>
+          <span className="text-4xl font-black text-[#D97706]">
+            {points.toLocaleString()}
+          </span>
           <span className="text-base font-bold text-indigo-600">Points</span>
         </div>
         <p className="text-slate-400 text-xs">
