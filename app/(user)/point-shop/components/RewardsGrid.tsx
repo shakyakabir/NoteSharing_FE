@@ -1,9 +1,10 @@
 "use client";
 import React from "react";
 import { Sparkles, Clock, ShieldCheck } from "lucide-react";
+import { useGetRewardsQuery, useRedeemRewardMutation } from "@/slices/Reward";
 
 interface RewardItem {
-  id: number;
+  id: number | string;
   icon: React.ReactNode;
   title: string;
   cost: number;
@@ -12,7 +13,9 @@ interface RewardItem {
 }
 
 export default function RewardsGrid() {
-  const rewards: RewardItem[] = [
+  const { data } = useGetRewardsQuery();
+  const [redeemReward, { isLoading }] = useRedeemRewardMutation();
+  const fallbackRewards: RewardItem[] = [
     {
       id: 1,
       icon: <Clock size={18} className="text-amber-600" />,
@@ -39,6 +42,15 @@ export default function RewardsGrid() {
         "A permanent decorative badge displayed next to your name in all groups.",
     },
   ];
+  const rewards = data?.length
+    ? data.map((reward: any) => ({
+        id: reward.id,
+        icon: <Sparkles size={18} className="text-amber-600" />,
+        title: reward.title,
+        cost: reward.cost,
+        description: reward.description,
+      }))
+    : fallbackRewards;
 
   return (
     <div className="space-y-4">
@@ -83,8 +95,12 @@ export default function RewardsGrid() {
               </p>
             </div>
 
-            <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs py-3 rounded-xl transition mt-6">
-              Redeem
+            <button
+              onClick={() => redeemReward(reward.id)}
+              disabled={isLoading || typeof reward.id === "number"}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-bold text-xs py-3 rounded-xl transition mt-6"
+            >
+              {typeof reward.id === "number" ? "Seed in backend" : "Redeem"}
             </button>
           </div>
         ))}

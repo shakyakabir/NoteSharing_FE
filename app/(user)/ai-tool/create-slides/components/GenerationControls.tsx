@@ -1,9 +1,23 @@
 "use client";
 import React, { useState } from "react";
 
-export default function GenerationControls() {
-  const [slideCount, setSlideCount] = useState(10);
-  const [includeImages, setIncludeImages] = useState(true);
+interface GenerationControlsProps {
+  slideCount?: number;
+  includeImages?: boolean;
+  onSlideCountChange?: (count: number) => void;
+  onIncludeImagesChange?: (includeImages: boolean) => void;
+}
+
+export default function GenerationControls({
+  slideCount: controlledSlideCount,
+  includeImages: controlledIncludeImages,
+  onSlideCountChange,
+  onIncludeImagesChange,
+}: GenerationControlsProps) {
+  const [localSlideCount, setLocalSlideCount] = useState(10);
+  const [localIncludeImages, setLocalIncludeImages] = useState(true);
+  const slideCount = controlledSlideCount ?? localSlideCount;
+  const includeImages = controlledIncludeImages ?? localIncludeImages;
 
   return (
     <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
@@ -17,7 +31,10 @@ export default function GenerationControls() {
             <button
               key={count}
               type="button"
-              onClick={() => setSlideCount(count)}
+              onClick={() => {
+                setLocalSlideCount(count);
+                onSlideCountChange?.(count);
+              }}
               className={`text-xs font-semibold px-4 py-2 rounded-lg transition-all ${
                 slideCount === count
                   ? "bg-indigo-50 text-indigo-600 font-bold border border-indigo-100/50"
@@ -44,7 +61,10 @@ export default function GenerationControls() {
         {/* Toggle Switch */}
         <button
           type="button"
-          onClick={() => setIncludeImages(!includeImages)}
+          onClick={() => {
+            setLocalIncludeImages(!includeImages);
+            onIncludeImagesChange?.(!includeImages);
+          }}
           className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors duration-200 focus:outline-none ${
             includeImages ? "bg-indigo-600" : "bg-slate-200"
           }`}

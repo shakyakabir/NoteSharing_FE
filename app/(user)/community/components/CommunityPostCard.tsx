@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 interface PostCardProps {
+  id?: string | number;
   authorName: string;
   authorImage?: string;
   timeAgo: string;
@@ -18,9 +19,11 @@ interface PostCardProps {
   likes: number;
   commentsCount: number;
   hasLiked?: boolean;
+  onLike?: (id: string | number) => void;
 }
 
 export default function CommunityPostCard({
+  id,
   authorName,
   authorImage,
   timeAgo,
@@ -30,6 +33,7 @@ export default function CommunityPostCard({
   likes,
   commentsCount,
   hasLiked = false,
+  onLike,
 }: PostCardProps) {
   return (
     <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:border-slate-200/80 transition-colors space-y-4">
@@ -80,6 +84,7 @@ export default function CommunityPostCard({
         <div className="flex items-center space-x-3">
           {/* Like Interaction Option Button */}
           <button
+            onClick={() => id && onLike?.(id)}
             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl transition ${
               hasLiked
                 ? "bg-indigo-50 text-indigo-600 font-bold"

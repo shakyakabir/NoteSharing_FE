@@ -1,33 +1,42 @@
 import React from "react";
 import { FileCode, Layers, Users } from "lucide-react";
-
-export default function RecentNotes() {
-  const notes = [
-    {
-      title: "Advanced Quantum Computing Basics",
-      time: "Last edited 2 hours ago",
-      views: "15.4k views",
-      tags: [
-        { name: "Science", color: "bg-indigo-50 text-indigo-600" },
-        { name: "Premium", color: "bg-amber-50 text-amber-700" },
-      ],
-      icon: <Layers className="w-5 h-5 text-slate-400" />,
-    },
-    {
-      title: "Strategic Marketing Playbook 2024",
-      time: "Last edited 5 hours ago",
-      views: "3.2k views",
-      tags: [{ name: "Business", color: "bg-indigo-50 text-indigo-600" }],
-      icon: <FileCode className="w-5 h-5 text-slate-400" />,
-    },
-    {
-      title: "Team Onboarding Document",
-      time: "Last edited yesterday",
-      views: "840 views",
-      tags: [{ name: "Internal", color: "bg-slate-100 text-slate-600" }],
-      icon: <Users className="w-5 h-5 text-slate-400" />,
-    },
-  ];
+interface Note {
+  title: string;
+  createAt: string;
+  // views: string;
+  // tags: { name: string; color: string }[];
+  icon: React.ReactNode;
+}
+interface RecentNotesProps {
+  notes: Note[];
+}
+export default function RecentNotes({ notes }: RecentNotesProps) {
+  // const notes = [
+  //   {
+  //     title: "Advanced Quantum Computing Basics",
+  //     time: "Last edited 2 hours ago",
+  //     views: "15.4k views",
+  //     tags: [
+  //       { name: "Science", color: "bg-indigo-50 text-indigo-600" },
+  //       { name: "Premium", color: "bg-amber-50 text-amber-700" },
+  //     ],
+  //     icon: <Layers className="w-5 h-5 text-slate-400" />,
+  //   },
+  //   {
+  //     title: "Strategic Marketing Playbook 2024",
+  //     time: "Last edited 5 hours ago",
+  //     views: "3.2k views",
+  //     tags: [{ name: "Business", color: "bg-indigo-50 text-indigo-600" }],
+  //     icon: <FileCode className="w-5 h-5 text-slate-400" />,
+  //   },
+  //   {
+  //     title: "Team Onboarding Document",
+  //     time: "Last edited yesterday",
+  //     views: "840 views",
+  //     tags: [{ name: "Internal", color: "bg-slate-100 text-slate-600" }],
+  //     icon: <Users className="w-5 h-5 text-slate-400" />,
+  //   },
+  // ];
 
   return (
     <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
@@ -45,18 +54,18 @@ export default function RecentNotes() {
           >
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center flex-shrink-0">
-                {note.icon}
+                <Layers className="w-5 h-5 text-slate-400" />
               </div>
               <div>
                 <h4 className="text-sm font-semibold text-slate-800 hover:text-amber-600 cursor-pointer">
                   {note.title}
                 </h4>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  {note.time} • {note.views}
+                  {new Date(note.createdAt).toLocaleDateString()}
                 </p>
               </div>
             </div>
-            <div className="flex gap-1.5 flex-shrink-0">
+            {/* <div className="flex gap-1.5 flex-shrink-0">
               {note.tags.map((tag, tIdx) => (
                 <span
                   key={tIdx}
@@ -65,7 +74,7 @@ export default function RecentNotes() {
                   {tag.name}
                 </span>
               ))}
-            </div>
+            </div> */}
           </div>
         ))}
       </div>

@@ -2,11 +2,29 @@
 import React, { useState } from "react";
 import CreatePostInput from "./components/CreatePostInput";
 import CommunityPostCard from "./components/CommunityPostCard";
+import {
+  useCreateCommunityMutation,
+  useCreatePostMutation,
+  useGetCommunitiesQuery,
+  useGetPostsQuery,
+  useJoinCommunityMutation,
+  useLikePostMutation,
+} from "@/slices/Community";
 
 export default function CommunityFeedPage() {
   const [activeFilter, setActiveFilter] = useState<"Newest" | "Popular">(
     "Newest",
   );
+  const { data: communities } = useGetCommunitiesQuery();
+  const defaultCommunity = communities?.[0];
+  const { data: apiPosts } = useGetPostsQuery(defaultCommunity?.id, {
+    skip: !defaultCommunity?.id,
+  });
+  const [createCommunity, { isLoading: isCreatingCommunity }] =
+    useCreateCommunityMutation();
+  const [joinCommunity] = useJoinCommunityMutation();
+  const [createPost, { isLoading: isPosting }] = useCreatePostMutation();
+  const [likePost] = useLikePostMutation();
 
   const samplePosts = [
     {
@@ -51,11 +69,54 @@ export default function CommunityFeedPage() {
       hasLiked: false,
     },
   ];
+  const posts = apiPosts?.length
+    ? apiPosts.map((post: any) => ({
+        id: post.id,
+        authorName: post.authorEmail,
+        authorImage: "",
+        timeAgo: new Date(post.createdAt).toLocaleString(),
+        tag: post.tag || "General",
+        title: post.title,
+        content: post.content,
+        likes: post.likes,
+        commentsCount: 0,
+        hasLiked: false,
+      }))
+    : samplePosts;
+
+  const handleCreateDefaultCommunity = async () => {
+    const community = await createCommunity({
+      name: "General Study Community",
+      category: "General",
+      description: "A shared space for notes, questions, and study help.",
+    }).unwrap();
+    await joinCommunity(community.id);
+  };
+
+  const handleCreatePost = async (content: string) => {
+    if (!defaultCommunity?.id) return;
+    await createPost({
+      communityId: defaultCommunity.id,
+      title: content.slice(0, 80),
+      tag: "General",
+      content,
+    });
+  };
 
   return (
     <div className="min-h-screen bg-[#F9FAFD] p-4 md:p-8 max-w-2xl mx-auto space-y-6">
       {/* Create Help Request Post Header Wrapper */}
-      <CreatePostInput />
+      {defaultCommunity ? (
+        <CreatePostInput onSubmit={handleCreatePost} isLoading={isPosting} />
+      ) : (
+        <button
+          onClick={handleCreateDefaultCommunity}
+          disabled={isCreatingCommunity}
+          className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold text-xs px-4 py-3 rounded-xl transition"
+        >
+          {isCreatingCommunity ? "Creating..." : "Create General Community"}
+        </button>
+      )}
 
       {/* Filter Options Nav Header Line */}
       <div className="flex items-center justify-between pt-2">
@@ -81,8 +142,12 @@ export default function CommunityFeedPage() {
 
       {/* Chronological Posts Loop List Stack Container */}
       <div className="space-y-4">
-        {samplePosts.map((post) => (
-          <CommunityPostCard key={post.id} {...post} />
+        {posts.map((post: any) => (
+          <CommunityPostCard
+            key={post.id}
+            {...post}
+            onLike={(id) => likePost(id)}
+          />
         ))}
       </div>
     </div>
