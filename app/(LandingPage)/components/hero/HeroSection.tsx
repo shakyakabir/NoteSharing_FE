@@ -3,16 +3,15 @@ import Text from "@/app/components/ui/Text";
 
 const HeroSection = () => {
   return (
-    <div className="flex flex-col justify-center items-center h-[80vh] px-4 text-center">
-      {/* Heading */}
+    <section className="flex flex-col justify-center items-center py-20 sm:py-28 px-4 text-center mx-auto max-w-5xl">
       <Text
         size="7xl"
         weight="bold"
         color="heading"
         as="h1"
-        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
+        className="text-4xl sm:text-6xl lg:text-7xl tracking-tight"
       >
-        Share note
+        Share notes.
       </Text>
 
       <Text
@@ -20,31 +19,29 @@ const HeroSection = () => {
         weight="bold"
         color="primary"
         as="h2"
-        className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl"
+        className="text-3xl sm:text-5xl lg:text-7xl text-teal-600 tracking-tight mt-1"
       >
         Learn smarter with AI
       </Text>
 
-      {/* Description */}
       <Text
         size="lg"
         weight="normal"
         color="subHeading"
         as="p"
-        className="w-full sm:w-3/4 md:w-2/3 lg:w-[50%] mt-5 sm:mt-6 md:mt-7 mb-6 sm:mb-7"
+        className="max-w-2xl mt-6 mb-8 text-base sm:text-lg text-gray-600 leading-relaxed"
       >
         The collaborative study platform that transforms your class notes into
         interactive quizzes, summaries, and shared knowledge bases instantly.
       </Text>
 
-      {/* Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 w-full sm:w-auto">
-        <Button className="w-full sm:w-auto">Sign up free</Button>
-        <Button variant="secondary" className="w-full sm:w-auto">
+      <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+        <Button className="w-full sm:w-auto px-8 py-3">Sign up free</Button>
+        <Button variant="secondary" className="w-full sm:w-auto px-8 py-3">
           Log in
         </Button>
       </div>
-    </div>
+    </section>
   );
 };
 

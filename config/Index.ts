@@ -1,7 +1,10 @@
+// const getEmail = localStorage.getItem("email");
+
+const getEmail =
+  typeof window !== "undefined" ? localStorage.getItem("email") : null;
 const Config = {
   baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
-  defaultEmail:
-    process.env.NEXT_PUBLIC_DEFAULT_EMAIL || "xiregev461@getasail.com",
+  defaultEmail: getEmail,
 };
 
 export default Config;

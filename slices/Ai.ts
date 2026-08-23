@@ -40,6 +40,13 @@ export const aiApi = createApi({
         responseHandler: "text",
       }),
     }),
+    getReportById: builder.query({
+      query: (id) => ({
+        url: `/reports/${id}`,
+        method: "GET",
+        // responseHandler: "text",
+      }),
+    }),
     createReport: builder.mutation({
       query: (data) => ({
         url: "/reports",
@@ -77,7 +84,7 @@ export const aiApi = createApi({
 export const {
   useCreatePresentationMutation,
   useGetPresentationsQuery,
-
+  useGetReportByIdQuery,
   useGetPresentationByIdQuery,
   useExportPresentationQuery,
   useCreateReportMutation,
