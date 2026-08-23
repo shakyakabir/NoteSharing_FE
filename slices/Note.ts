@@ -41,6 +41,24 @@ export const NoteSlice = createApi({
       }),
     }),
 
+    postGroupNotes: builder.mutation({
+      query: ({ noteData, id }) => ({
+        url: `/notes/group/${id}`,
+        method: "PUT",
+        body: noteData,
+        params: { email: Config.defaultEmail },
+      }),
+    }),
+    getGroupNotes: builder.query<any, string>({
+      query: (groupId) => ({
+        url: `/notes/groups/${groupId}`,
+        method: "GET",
+        params: {
+          email: Config.defaultEmail,
+        },
+      }),
+    }),
+
     updateNotes: builder.mutation({
       query: ({ noteData, id }) => ({
         url: `/notes/${id}`,
@@ -81,6 +99,8 @@ export const {
   useGetPublicNotesQuery,
   useGetPublicNotesIDQuery,
   usePostNotesMutation,
+  useGetGroupNotesQuery,
+  usePostGroupNotesMutation,
   useUpdateNotesMutation,
   useGetNotesIDQuery,
   usePostQuizMutation,

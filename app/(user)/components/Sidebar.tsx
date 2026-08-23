@@ -35,7 +35,7 @@ export default function Sidebar() {
   const aiTools = [
     { label: "Summarizer", link: "/ai-tool/summarizer" },
     { label: "Create Slide", link: "/ai-tool/create-slides" },
-    { label: "Notes Writer", link: "/all-tools/writer" },
+    { label: "Report Generator", link: "/ai-tool/report" },
     { label: "Flashcards", link: "/all-tools/flashcards" },
   ];
 

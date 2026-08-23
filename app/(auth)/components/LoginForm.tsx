@@ -7,6 +7,7 @@ import note from "@/public/note.svg";
 import { useLoginMutation } from "@/slices/Auth";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const LoginForm = () => {
@@ -21,8 +22,8 @@ const LoginForm = () => {
     window.location.href = "http://localhost:8080/logout";
   };
 
-  const [postLogin] = useLoginMutation();
-
+  const [postLogin, { isLoading }] = useLoginMutation();
+  const router = useRouter();
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -33,7 +34,11 @@ const LoginForm = () => {
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await postLogin(formData).unwrap();
+      const response = await postLogin(formData).unwrap();
+      if (response.status === "200") {
+        router.push("/dashboard");
+        localStorage.setItem("email", response.data);
+      }
     } catch (error) {
       console.error("Failed to login:", error);
     }
@@ -201,7 +206,7 @@ const LoginForm = () => {
           onClick={handleLoginSubmit}
           className="w-full mt-6 py-3 px-4 bg-[#5E52FF] hover:bg-[#4E42EF] text-white font-semibold text-sm rounded-xl shadow-md transition-all active:scale-[0.99]"
         >
-          Log In
+          {isLoading ? "Log In..." : "Log In"}
         </Button>
       </div>
 

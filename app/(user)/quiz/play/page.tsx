@@ -1,95 +1,32 @@
-// "use client";
-
-// import { useGetQuizIDQuery } from "@/slices/Note";
-// import { useEffect, useState } from "react";
-
-// export default function QuizPlay() {
-//   const [questions, setQuestions] = useState([]);
-//   const [answers, setAnswers] = useState({});
-
-//   const { data } = useGetQuizIDQuery("79c4e810-74f2-4abb-b3cd-9fa7248b3220");
-
-//   useEffect(() => {
-//     if (data?.questionsJson) {
-//       try {
-//         const parsed = JSON.parse(data.questionsJson);
-//         setQuestions(parsed);
-//       } catch (e) {
-//         console.error("Invalid JSON:", e);
-//       }
-//     }
-//   }, [data]);
-
-//   const selectAnswer = (index, option) => {
-//     setAnswers((prev) => ({
-//       ...prev,
-//       [index]: option,
-//     }));
-//   };
-
-//   const submitQuiz = async () => {
-//     const payload = Object.keys(answers).map((key) => ({
-//       questionIndex: parseInt(key),
-//       answer: answers[key],
-//     }));
-
-//     const res = await fetch(
-//       "http://localhost:8080/api/play?quizId=79c4e810-74f2-4abb-b3cd-9fa7248b3220&email=test@gmail.com",
-//       {
-//         method: "POST",
-//         credentials: "include",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify(payload),
-//       },
-//     );
-
-//     const result = await res.json();
-//     console.log(result);
-//   };
-
-//   return (
-//     <div>
-//       <h2>Quiz</h2>
-
-//       {questions.map((q, i) => (
-//         <div key={i}>
-//           <h3>{q.question}</h3>
-
-//           {q.options.map((opt) => (
-//             <button key={opt} onClick={() => selectAnswer(i, opt)}>
-//               {opt}
-//             </button>
-//           ))}
-//         </div>
-//       ))}
-
-//       <button onClick={submitQuiz}>Submit</button>
-//     </div>
-//   );
-// }
-
 "use client";
 
-import { useGetQuizIDQuery, usePlayQuizMutation } from "@/slices/Note";
 import { useEffect, useState } from "react";
 
-// Types for better clarity and safety
+import Config from "@/config/Index";
+import { QuizResultDTO } from "@/Type/QuizType";
+import { useGetQuizIDQuery, usePlayQuizMutation } from "@/slices/Quiz";
+
 interface Question {
   question: string;
   options: string[];
 }
 
-export default function QuizPlay() {
+interface QuizPlayProps {
+  quizId: string;
+  /** Defaults to Config.defaultEmail if not provided by the caller/session. */
+  playerEmail?: string;
+}
+
+export default function QuizPlay({ quizId, playerEmail }: QuizPlayProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [quizResult, setQuizResult] = useState<any>(null);
+  const [quizResult, setQuizResult] = useState<QuizResultDTO | null>(null);
   const [playQuiz] = usePlayQuizMutation();
-  const quizId = "57dd2e64-41a6-4d1b-8064-2f5349053323";
 
-  const { data, isLoading, error } = useGetQuizIDQuery(quizId);
+  const { data, isLoading, error } = useGetQuizIDQuery(
+    "f6c2b159-783f-4a6b-83f0-2084a78a3dcc",
+  );
 
   useEffect(() => {
     if (data?.questionsJson) {
@@ -111,7 +48,6 @@ export default function QuizPlay() {
   };
 
   const submitQuiz = async () => {
-    // Basic validation to check if all questions are answered
     if (Object.keys(answers).length < questions.length) {
       alert("Please answer all questions before submitting!");
       return;
@@ -124,9 +60,13 @@ export default function QuizPlay() {
         answer: answers[parseInt(key)],
       }));
 
-      const result = await playQuiz({ quizId, answers: payload }).unwrap();
+      const result = await playQuiz({
+        quizId,
+        playerEmail: playerEmail || Config.defaultEmail,
+        answers: payload,
+      }).unwrap();
+
       setQuizResult(result);
-      console.log(result);
     } catch (err) {
       console.error("Submission failed:", err);
     } finally {
@@ -134,7 +74,6 @@ export default function QuizPlay() {
     }
   };
 
-  // Loading & Error States
   if (isLoading)
     return (
       <div className="text-center py-12 text-slate-500 font-medium">
@@ -170,17 +109,32 @@ export default function QuizPlay() {
             <h2 className="text-2xl font-bold text-slate-900">
               Quiz Completed!
             </h2>
-            {/* ← Add this score display */}
+
             <div className="mt-4 p-4 bg-slate-50 rounded-xl">
               <p className="text-4xl font-extrabold text-indigo-600">
                 {quizResult.score} / {quizResult.total}
               </p>
               <p className="text-slate-500 mt-1 text-sm">
-                {Math.round((quizResult.score / quizResult.total) * 100)}%
-                correct
+                {quizResult.total > 0
+                  ? Math.round((quizResult.score / quizResult.total) * 100)
+                  : 0}
+                % correct
               </p>
             </div>
-            <p className="mt-2 text-slate-600">
+
+            {/* Points earned - only ever nonzero for solo mode */}
+            <div className="mt-4 p-4 bg-amber-50 rounded-xl">
+              <p className="text-2xl font-extrabold text-amber-600">
+                +{quizResult.pointsEarned} pts
+              </p>
+              <p className="text-slate-500 mt-1 text-xs">
+                {quizResult.mode === "SOLO"
+                  ? "Added to your total score"
+                  : "Collaborative quizzes don't earn points"}
+              </p>
+            </div>
+
+            <p className="mt-4 text-slate-600">
               Your answers have been submitted successfully.
             </p>
 
@@ -211,7 +165,6 @@ export default function QuizPlay() {
                   </h3>
                 </div>
 
-                {/* Options Grid */}
                 <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {q.options.map((opt, optIndex) => {
                     const letter = ["A", "B", "C", "D"][optIndex];
@@ -234,7 +187,6 @@ export default function QuizPlay() {
               </div>
             ))}
 
-            {/* Submit Button */}
             <div className="pt-4">
               <button
                 onClick={submitQuiz}
