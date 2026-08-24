@@ -5,20 +5,37 @@ import UploadZone from "../components/UploadZone";
 import Breadcrumbs from "../components/Breadcrumbs";
 import { useState } from "react";
 import { useSummarizeMutation } from "@/slices/Ai";
+import { toast } from "sonner";
+import AiCostNotice from "../../components/AiCostNotice";
+import { useAiCredits, getInsufficientCredits } from "@/hooks/ai/useAiCredits";
 
 const Summarizer = () => {
   const [textInput, setTextInput] = useState("");
   const [summary, setSummary] = useState("");
   const [summarize, { isLoading: isProcessing }] = useSummarizeMutation();
+  const { canAfford, refetch } = useAiCredits();
 
   const handleGenerate = async () => {
-    const result = await summarize({
-      title: "Generated Summary",
-      sourceContent: textInput,
-      reportType: "SUMMARY",
-    }).unwrap();
+    try {
+      const result = await summarize({
+        title: "Generated Summary",
+        sourceContent: textInput,
+        reportType: "SUMMARY",
+      }).unwrap();
 
-    setSummary(result?.content || "");
+      setSummary(result?.content || "");
+      // Balance changed server-side - refresh the shared credits cache (badge, dashboard, etc.).
+      refetch();
+    } catch (err) {
+      const insufficient = getInsufficientCredits(err);
+      if (insufficient) {
+        toast.error(
+          `Not enough AI credits - needs ${insufficient.requiredCredits}, you have ${insufficient.availableCredits}.`,
+        );
+      } else {
+        toast.error("Failed to generate summary.");
+      }
+    }
   };
 
   return (
@@ -49,10 +66,10 @@ const Summarizer = () => {
             </p>
           </div>
 
-          <div className="self-start sm:self-auto bg-amber-50/60 border border-amber-100 px-3 py-1.5 rounded-xl flex items-center space-x-1.5 text-xs font-bold text-amber-700">
-            <span>🪙</span>
-            <span>50 pts / use</span>
-          </div>
+          <AiCostNotice
+            feature="SUMMARIZE"
+            className="self-start sm:self-auto"
+          />
         </div>
 
         {/* Binary Choice Inputs Blocks: Drag drop zone + Custom textarea entry box formatting */}
@@ -69,7 +86,7 @@ const Summarizer = () => {
         <div className="flex justify-end pt-2">
           <button
             onClick={handleGenerate}
-            disabled={isProcessing}
+            disabled={isProcessing || !canAfford("SUMMARIZE")}
             className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold text-xs px-5 py-3 rounded-xl transition flex items-center space-x-2 shadow-md shadow-indigo-600/10"
           >
             <span>

@@ -12,6 +12,9 @@ import {
 } from "@/slices/Ai";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import AiCostNotice from "../../components/AiCostNotice";
+import { useAiCredits, getInsufficientCredits } from "@/hooks/ai/useAiCredits";
 
 const CreateSlide = () => {
   const [show, setShow] = useState(false);
@@ -22,26 +25,38 @@ const CreateSlide = () => {
   const [presentation, setPresentation] = useState<any>(null);
   const [presnt, setPresnt] = useState<any>(null);
   const [createPresentation, { isLoading }] = useCreatePresentationMutation();
+  const { canAfford, refetch } = useAiCredits();
 
   const router = useRouter();
   const handleGenerate = async () => {
-    const result = await createPresentation({
-      title: "Generated Presentation",
-      includeImages: true,
-      sourceContent,
-      theme,
-      templateName: `${slideCount} slides${includeImages ? " with images" : ""}`,
-    }).unwrap();
-    setPresentation(result);
-    sessionStorage.setItem(
-      "generatedPresentation",
-      JSON.stringify(result.data),
-    );
+    try {
+      const result = await createPresentation({
+        title: "Generated Presentation",
+        includeImages: true,
+        sourceContent,
+        theme,
+        templateName: `${slideCount} slides${includeImages ? " with images" : ""}`,
+      }).unwrap();
+      setPresentation(result);
+      refetch();
+      sessionStorage.setItem(
+        "generatedPresentation",
+        JSON.stringify(result.data),
+      );
 
-    const presentationId = result?.id;
-    if (presentationId) {
-      // router.push(`/ai-tool/create-slides/${presentationId}`);
-      router.push(`/ai-tool/create-slides/${presentationId}`);
+      const presentationId = result?.id;
+      if (presentationId) {
+        router.push(`/ai-tool/create-slides/${presentationId}`);
+      }
+    } catch (err) {
+      const insufficient = getInsufficientCredits(err);
+      if (insufficient) {
+        toast.error(
+          `Not enough AI credits - needs ${insufficient.requiredCredits}, you have ${insufficient.availableCredits}.`,
+        );
+      } else {
+        toast.error("Failed to generate presentation.");
+      }
     }
   };
 
@@ -68,8 +83,12 @@ const CreateSlide = () => {
                 onIncludeImagesChange={setIncludeImages}
               />
             </div>
-            <div className="flex justify-center items-center h-50">
-              <Button onClick={handleGenerate}>
+            <div className="flex flex-col justify-center items-center gap-3 h-50">
+              <AiCostNotice feature="PPT" />
+              <Button
+                onClick={handleGenerate}
+                disabled={isLoading || !canAfford("PPT")}
+              >
                 {isLoading ? "Generating..." : "Generate Presentation"}
               </Button>
             </div>

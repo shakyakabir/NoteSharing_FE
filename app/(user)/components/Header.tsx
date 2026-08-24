@@ -1,3 +1,7 @@
+"use client";
+
+import AiCreditsBadge from "./AiCreditsBadge";
+
 export default function Header() {
   return (
     <div className="flex items-center justify-between">
@@ -11,6 +15,7 @@ export default function Header() {
           className="px-3 py-2 border rounded-lg w-64"
           placeholder="Search notes..."
         />
+        <AiCreditsBadge />
         <span>🔔</span>
         <span>👤</span>
       </div>

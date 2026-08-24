@@ -11,6 +11,7 @@ import {
   Plus,
   MessageSquare,
   ChevronDown,
+  CreditCard,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -29,6 +30,11 @@ export default function Sidebar() {
       icon: <MessageSquare size={18} />,
       label: "Community",
       link: "/community",
+    },
+    {
+      icon: <CreditCard size={18} />,
+      label: "Subscription",
+      link: "/subscription",
     },
   ];
 
