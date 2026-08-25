@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Plus } from "lucide-react";
+import { toast } from "sonner";
 import {
   RewardFormData,
   RewardFormModal,
@@ -10,48 +11,42 @@ import {
 import { RewardsFilterBar } from "./RewardsFilterBar";
 import { DeleteConfirmModal } from "../components/modal/DeleteConfirmModal";
 import { RewardsTable } from "./RewardsTable";
+import {
+  useGetAdminRewardsQuery,
+  useCreateRewardMutation,
+  useUpdateRewardMutation,
+  useDeleteRewardMutation,
+  type AdminReward,
+  type AdminRewardRequest,
+} from "@/slices/Admin";
 
-const INITIAL_REWARDS: RewardItem[] = [
-  {
-    id: "1",
-    name: "100 AI Credits Pack",
-    type: "Credits Bundle",
-    aiCost: "100",
-    pointPrice: "5,000 pts",
-    maxUses: "Unlimited",
-    status: "ACTIVE",
-  },
-  {
-    id: "2",
-    name: "Dark Academia Theme",
-    type: "Premium Theme",
-    aiCost: "-",
-    pointPrice: "1,500 pts",
-    maxUses: "1",
-    status: "ACTIVE",
-  },
-  {
-    id: "3",
-    name: "Export to PDF (Pro)",
-    type: "Export Formats",
-    aiCost: "5",
-    pointPrice: "500 pts",
-    maxUses: "10",
-    status: "DRAFT",
-  },
-  {
-    id: "4",
-    name: "Legacy Icon Pack",
-    type: "Visual Asset",
-    aiCost: "-",
-    pointPrice: "2,000 pts",
-    maxUses: "1",
-    status: "SUSPENDED",
-  },
-];
+const errMsg = (err: unknown, fallback: string) =>
+  (err as { data?: { message?: string } })?.data?.message || fallback;
+
+// Backend RewardItem entity -> the UI's display shape. Numbers become the mock's display strings
+// (0 max-uses = "Unlimited", 0 AI cost = "-", cost = "5,000 pts").
+const toUi = (r: AdminReward): RewardItem => ({
+  id: r.id,
+  name: r.title,
+  type: r.rewardType,
+  aiCost: r.aiCost > 0 ? String(r.aiCost) : "-",
+  pointPrice: `${r.cost.toLocaleString()} pts`,
+  maxUses: r.maxUses === 0 ? "Unlimited" : String(r.maxUses),
+  status:
+    r.status === "DRAFT" || r.status === "SUSPENDED" ? r.status : "ACTIVE",
+});
+
+const toInt = (value: string) => {
+  const n = parseInt(value, 10);
+  return Number.isNaN(n) ? 0 : Math.max(0, n);
+};
 
 export default function PointsRewardsManagement() {
-  const [rewards, setRewards] = useState<RewardItem[]>(INITIAL_REWARDS);
+  const { data: apiRewards } = useGetAdminRewardsQuery();
+  const [createReward] = useCreateRewardMutation();
+  const [updateReward] = useUpdateRewardMutation();
+  const [deleteReward] = useDeleteRewardMutation();
+
   const [featureTypeFilter, setFeatureTypeFilter] =
     useState("All Feature Types");
   const [statusFilter, setStatusFilter] = useState("Status: All");
@@ -60,6 +55,11 @@ export default function PointsRewardsManagement() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [editingReward, setEditingReward] = useState<RewardItem | null>(null);
   const [deletingReward, setDeletingReward] = useState<RewardItem | null>(null);
+
+  const rewards = useMemo<RewardItem[]>(
+    () => (apiRewards ?? []).map(toUi),
+    [apiRewards],
+  );
 
   const filteredRewards = useMemo(() => {
     return rewards.filter((item) => {
@@ -74,44 +74,40 @@ export default function PointsRewardsManagement() {
     });
   }, [rewards, featureTypeFilter, statusFilter]);
 
-  const handleCreateOrUpdate = (data: RewardFormData) => {
-    const formattedPrice = `${Number(data.pointPrice || 0).toLocaleString()} pts`;
-    const formattedAiCost = data.aiCost.trim() ? data.aiCost : "-";
+  const handleCreateOrUpdate = async (data: RewardFormData) => {
+    const body: AdminRewardRequest = {
+      title: data.name,
+      rewardType: data.type,
+      cost: toInt(data.pointPrice.replace(/,/g, "")),
+      aiCost: toInt(data.aiCost),
+      maxUses: toInt(data.maxUses),
+      status: data.status,
+    };
 
-    if (editingReward) {
-      setRewards((prev) =>
-        prev.map((item) =>
-          item.id === editingReward.id
-            ? {
-                ...item,
-                ...data,
-                pointPrice: formattedPrice,
-                aiCost: formattedAiCost,
-              }
-            : item,
-        ),
-      );
-    } else {
-      setRewards((prev) => [
-        {
-          id: Date.now().toString(),
-          ...data,
-          pointPrice: formattedPrice,
-          aiCost: formattedAiCost,
-        },
-        ...prev,
-      ]);
+    try {
+      if (editingReward) {
+        await updateReward({ id: editingReward.id, body }).unwrap();
+        toast.success("Reward updated");
+      } else {
+        await createReward(body).unwrap();
+        toast.success("Reward created");
+      }
+      setIsFormModalOpen(false);
+      setEditingReward(null);
+    } catch (err) {
+      toast.error(errMsg(err, "Failed to save reward"));
     }
-    setIsFormModalOpen(false);
   };
 
-  const handleDeleteConfirm = () => {
-    if (deletingReward) {
-      setRewards((prev) =>
-        prev.filter((item) => item.id !== deletingReward.id),
-      );
+  const handleDeleteConfirm = async () => {
+    if (!deletingReward) return;
+    try {
+      await deleteReward(deletingReward.id).unwrap();
+      toast.success("Reward deleted");
       setIsDeleteModalOpen(false);
       setDeletingReward(null);
+    } catch (err) {
+      toast.error(errMsg(err, "Failed to delete reward"));
     }
   };
 

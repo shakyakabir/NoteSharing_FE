@@ -1,7 +1,8 @@
 import React from "react";
 import { Search, Bell, User } from "lucide-react";
+import type { AdminMe } from "@/slices/Admin";
 
-export const Header = () => {
+export const Header = ({ admin }: { admin?: AdminMe }) => {
   return (
     <header className="h-16 border-b border-slate-100 px-8 flex items-center justify-between bg-white/50 backdrop-blur-sm sticky top-0 z-10">
       <div className="relative w-96">
@@ -17,6 +18,14 @@ export const Header = () => {
         <button className="p-2 text-slate-400 hover:text-slate-600 rounded-lg transition-colors">
           <Bell className="w-5 h-5" />
         </button>
+        {admin && (
+          <div className="hidden sm:flex flex-col items-end leading-tight">
+            <span className="text-sm font-semibold text-slate-700">
+              {admin.name}
+            </span>
+            <span className="text-xs text-slate-400">{admin.email}</span>
+          </div>
+        )}
         <button className="p-2 text-slate-400 hover:text-slate-600 rounded-lg transition-colors">
           <User className="w-5 h-5" />
         </button>

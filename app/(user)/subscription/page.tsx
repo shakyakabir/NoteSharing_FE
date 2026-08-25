@@ -1,8 +1,7 @@
 "use client";
 import React from "react";
-import PlanOverview from "./components/PlanOverview";
-import PremiumUpgradeCard from "./components/PremiumUpgradeCard";
-import CreditUsageHistory from "./components/CreditUsageHistory";
+
+import AvailablePlans from "./components/AvailablePlans";
 
 export default function SubscriptionPage() {
   return (
@@ -17,9 +16,7 @@ export default function SubscriptionPage() {
         </p>
       </div>
 
-      <PlanOverview />
-      <PremiumUpgradeCard />
-      <CreditUsageHistory />
+      <AvailablePlans />
     </div>
   );
 }

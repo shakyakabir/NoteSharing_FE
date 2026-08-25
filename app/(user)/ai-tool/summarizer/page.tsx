@@ -7,13 +7,19 @@ import { useState } from "react";
 import { useSummarizeMutation } from "@/slices/Ai";
 import { toast } from "sonner";
 import AiCostNotice from "../../components/AiCostNotice";
-import { useAiCredits, getInsufficientCredits } from "@/hooks/ai/useAiCredits";
+import RestrictedFeatureModal from "../../components/RestrictedFeatureModal";
+import {
+  useAiCredits,
+  getInsufficientCredits,
+  getFeatureNotAvailable,
+} from "@/hooks/ai/useAiCredits";
 
 const Summarizer = () => {
   const [textInput, setTextInput] = useState("");
   const [summary, setSummary] = useState("");
   const [summarize, { isLoading: isProcessing }] = useSummarizeMutation();
   const { canAfford, refetch } = useAiCredits();
+  const [accessError, setAccessError] = useState<unknown>(null);
 
   const handleGenerate = async () => {
     try {
@@ -27,11 +33,8 @@ const Summarizer = () => {
       // Balance changed server-side - refresh the shared credits cache (badge, dashboard, etc.).
       refetch();
     } catch (err) {
-      const insufficient = getInsufficientCredits(err);
-      if (insufficient) {
-        toast.error(
-          `Not enough AI credits - needs ${insufficient.requiredCredits}, you have ${insufficient.availableCredits}.`,
-        );
+      if (getInsufficientCredits(err) || getFeatureNotAvailable(err)) {
+        setAccessError(err);
       } else {
         toast.error("Failed to generate summary.");
       }
@@ -110,6 +113,11 @@ const Summarizer = () => {
           </pre>
         </div>
       )}
+
+      <RestrictedFeatureModal
+        error={accessError}
+        onClose={() => setAccessError(null)}
+      />
     </div>
   );
 };

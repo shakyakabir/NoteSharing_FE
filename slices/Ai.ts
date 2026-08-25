@@ -1,6 +1,7 @@
 import Config from "@/config/Index";
 import customBaseQuery from "@/service/BaseApi";
 import { createApi } from "@reduxjs/toolkit/query/react";
+import { config } from "process";
 
 export const aiApi = createApi({
   reducerPath: "aiApi",
@@ -17,6 +18,25 @@ export const aiApi = createApi({
         },
       }),
       invalidatesTags: ["Presentation"],
+    }),
+
+    createSummary: builder.mutation({
+      query: (noteId) => ({
+        url: "/summaries",
+        method: "POST",
+
+        params: { noteId: noteId, email: Config.defaultEmail },
+      }),
+      invalidatesTags: ["Report"],
+    }),
+    getSummary: builder.query<any, string | void>({
+      query: (noteId) => ({
+        url: `/summaries/${noteId}`,
+        method: "GET",
+
+        params: { email: Config.defaultEmail },
+      }),
+      providesTags: ["Report"],
     }),
     getPresentations: builder.query<any, string | void>({
       query: (email) => ({
@@ -84,10 +104,12 @@ export const aiApi = createApi({
 export const {
   useCreatePresentationMutation,
   useGetPresentationsQuery,
+  useGetSummaryQuery,
   useGetReportByIdQuery,
   useGetPresentationByIdQuery,
   useExportPresentationQuery,
   useCreateReportMutation,
+  useCreateSummaryMutation,
   useSummarizeMutation,
   useGetReportsQuery,
 } = aiApi;

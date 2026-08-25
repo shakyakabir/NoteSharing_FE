@@ -7,6 +7,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { quizApi } from "@/slices/Quiz";
 import { memeberApi } from "@/slices/GroupMember";
 import { subscriptionApi } from "@/slices/Subscription";
+import { adminApi } from "@/slices/Admin";
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     [memeberApi.reducerPath]: memeberApi.reducer,
     [rewardApi.reducerPath]: rewardApi.reducer,
     [subscriptionApi.reducerPath]: subscriptionApi.reducer,
+    [adminApi.reducerPath]: adminApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -29,6 +31,7 @@ export const store = configureStore({
       memeberApi.middleware,
       rewardApi.middleware,
       subscriptionApi.middleware,
+      adminApi.middleware,
     ),
 });
 

@@ -14,7 +14,12 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import AiCostNotice from "../../components/AiCostNotice";
-import { useAiCredits, getInsufficientCredits } from "@/hooks/ai/useAiCredits";
+import RestrictedFeatureModal from "../../components/RestrictedFeatureModal";
+import {
+  useAiCredits,
+  getInsufficientCredits,
+  getFeatureNotAvailable,
+} from "@/hooks/ai/useAiCredits";
 
 const CreateSlide = () => {
   const [show, setShow] = useState(false);
@@ -26,6 +31,7 @@ const CreateSlide = () => {
   const [presnt, setPresnt] = useState<any>(null);
   const [createPresentation, { isLoading }] = useCreatePresentationMutation();
   const { canAfford, refetch } = useAiCredits();
+  const [accessError, setAccessError] = useState<unknown>(null);
 
   const router = useRouter();
   const handleGenerate = async () => {

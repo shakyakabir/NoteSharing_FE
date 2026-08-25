@@ -2,12 +2,14 @@
 
 import React, { useState } from "react";
 import { X, AlertTriangle, ShieldCheck } from "lucide-react";
-import { Plan } from "../types/subscription";
+import { Plan } from "../type/subscription";
 
 interface ActionModalProps {
   isOpen: boolean;
   type: "UPGRADE" | "CANCEL" | "CHANGE_PLAN" | "CREATE_PLAN" | null;
   selectedPlan: Plan | null;
+  // When set, the CREATE_PLAN form acts as an edit form (prefilled name + price).
+  editingPlan?: Plan | null;
   onClose: () => void;
   onConfirm: (data?: any) => void;
 }
@@ -16,11 +18,25 @@ export const SubscriptionModals: React.FC<ActionModalProps> = ({
   isOpen,
   type,
   selectedPlan,
+  editingPlan,
   onClose,
   onConfirm,
 }) => {
   const [newPlanName, setNewPlanName] = useState("");
   const [newPlanPrice, setNewPlanPrice] = useState("");
+
+  // Seed the form on each open transition (edit -> prefilled, create -> blank) during render,
+  // not in an effect, so it stays react-compiler safe. price strings like "$9.99" -> "9.99".
+  const [wasOpen, setWasOpen] = useState(false);
+  if (isOpen && !wasOpen) {
+    setWasOpen(true);
+    setNewPlanName(editingPlan?.name ?? "");
+    setNewPlanPrice(
+      editingPlan ? editingPlan.price.replace(/[^0-9.]/g, "") : "",
+    );
+  } else if (!isOpen && wasOpen) {
+    setWasOpen(false);
+  }
 
   if (!isOpen) return null;
 
@@ -108,7 +124,7 @@ export const SubscriptionModals: React.FC<ActionModalProps> = ({
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-gray-100 pb-3">
               <h3 className="text-base font-bold text-gray-900">
-                Create Custom Plan
+                {editingPlan ? "Edit Plan" : "Create Custom Plan"}
               </h3>
               <button
                 onClick={onClose}
@@ -156,7 +172,7 @@ export const SubscriptionModals: React.FC<ActionModalProps> = ({
                 }
                 className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold"
               >
-                Save Plan
+                {editingPlan ? "Save Changes" : "Save Plan"}
               </button>
             </div>
           </div>
