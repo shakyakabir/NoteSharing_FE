@@ -1,118 +1,129 @@
 "use client";
 import React from "react";
-import { ThumbsUp, MessageSquare, Bookmark, Sparkles } from "lucide-react";
+import {
+  ThumbsUp,
+  MessageSquare,
+  Bookmark,
+  BookOpen,
+  User,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export interface NoteCardProps {
   id: string;
-  category: string;
-  categoryBg: string;
-  categoryText: string;
-  hasAiSummary: boolean;
+  category?: string;
   title: string;
-  authorName: string;
-  authorImage: string;
+  content?: string;
+  authorName?: string;
+  authorImage?: string;
   createdAt: string;
-  likes: number;
-  comments: number;
+  likes?: number;
+  comments?: number;
   isBookmarked?: boolean;
 }
 
 export default function NoteCard({
-  category,
-  categoryBg,
-  categoryText,
-  hasAiSummary,
-  title,
-  authorName,
   id,
+  category = "General",
+  title,
+  content = "",
+  authorName = "Anonymous",
   authorImage,
   createdAt,
-  likes,
-  comments,
+  likes = 0,
+  comments = 0,
   isBookmarked = false,
 }: NoteCardProps) {
-  const route = useRouter();
-  const handleDetail = (noteId: string) => {
-    route.push(`/discover/${noteId}`);
-  };
-  return (
-    <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
-      {/* Thumbnail Header Background Banner */}
-      <div className="h-32 bg-slate-100 relative p-4 flex flex-col justify-between overflow-hidden">
-        {/* Absolute placeholder abstract lines to mimic card preview art */}
-        <div className="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:14px_24px]" />
+  const router = useRouter();
 
-        {/* Category Badge */}
-        <div>
-          <span
-            className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${categoryBg} ${categoryText}`}
-          >
+  const handleDetail = () => {
+    router.push(`/discover/${id}`);
+  };
+
+  return (
+    <div
+      onClick={handleDetail}
+      className="w-full max-w-sm bg-white border border-indigo-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md hover:border-indigo-300 transition-all duration-200 group cursor-pointer flex flex-col justify-between"
+    >
+      <div>
+        {/* Top Header: Category Pill & Top-Right Icon */}
+        <div className="flex items-center justify-between mb-4">
+          <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-xs font-medium border border-indigo-100/50">
             {category}
           </span>
+
+          <div className="w-8 h-8 rounded-full bg-slate-100/80 flex items-center justify-center text-slate-500">
+            <BookOpen size={14} />
+          </div>
         </div>
 
-        {/* AI Summary Badge */}
-        {hasAiSummary && (
-          <div className="self-end bg-white/80 backdrop-blur-sm border border-emerald-500/20 px-2 py-1 rounded-lg flex items-center space-x-1 text-[10px] font-bold text-emerald-700 shadow-sm">
-            <Sparkles size={10} className="fill-emerald-600 text-emerald-600" />
-            <span>AI Summary Available</span>
-          </div>
-        )}
-      </div>
+        {/* Note Title */}
+        <h3 className="font-bold text-slate-900 text-lg leading-tight tracking-tight line-clamp-2 mb-2 group-hover:text-indigo-600 transition-colors">
+          {title}
+        </h3>
 
-      {/* Main Metadata Body */}
-      <div className="p-5 flex-1 flex flex-col justify-between">
-        <div>
-          <button
-            onClick={() => handleDetail(id)}
-            className="font-bold text-slate-800 text-base leading-snug line-clamp-2 tracking-tight group-hover:text-indigo-600 transition-colors"
-          >
-            {title}
-          </button>
+        {/* Note Content Snippet */}
+        <p className="text-xs text-slate-400 leading-relaxed line-clamp-3 mb-6">
+          {content || "No preview description available for this note..."}
+        </p>
 
-          {/* Author Block */}
-          <div className="flex items-center space-x-2.5 mt-4">
-            <div className="w-7 h-7 rounded-full bg-slate-200 overflow-hidden shrink-0">
+        {/* Author Avatar & Metadata */}
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center shrink-0 overflow-hidden">
+            {authorImage ? (
               <img
                 src={authorImage}
                 alt={authorName}
                 className="w-full h-full object-cover"
               />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold text-slate-700 line-clamp-1">
-                {authorName || " test"}
-              </p>
-              <p className="text-[10px] text-slate-400 mt-0.5">
-                {new Date(createdAt).toLocaleDateString()}
-              </p>
-            </div>
+            ) : (
+              <User size={16} />
+            )}
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-bold text-slate-800 truncate">
+              {authorName}
+            </p>
+            <p className="text-[11px] text-slate-400">
+              {new Date(createdAt).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </p>
           </div>
         </div>
+      </div>
 
-        {/* Action Metrics Footer bar */}
-        <div className="flex items-center justify-between border-t border-slate-50 mt-5 pt-3 text-slate-400 text-xs font-medium">
-          <div className="flex items-center space-x-4">
-            <button className="flex items-center space-x-1 hover:text-slate-600 transition-colors">
-              <ThumbsUp size={14} />
-              <span>{likes}</span>
-            </button>
-            <button className="flex items-center space-x-1 hover:text-slate-600 transition-colors">
-              <MessageSquare size={14} />
-              <span>{comments}</span>
-            </button>
-          </div>
+      {/* Footer Metrics & Actions */}
+      <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-slate-400 text-xs font-medium">
+        <div className="flex items-center space-x-4">
           <button
-            className={`transition-colors p-1 rounded-md hover:bg-slate-50 ${
-              isBookmarked
-                ? "text-indigo-600 fill-indigo-600"
-                : "hover:text-slate-600"
-            }`}
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center space-x-1.5 hover:text-slate-600 transition-colors"
           >
-            <Bookmark size={15} />
+            <ThumbsUp size={14} />
+            <span>{likes}</span>
+          </button>
+          <button
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center space-x-1.5 hover:text-slate-600 transition-colors"
+          >
+            <MessageSquare size={14} />
+            <span>{comments}</span>
           </button>
         </div>
+
+        <button
+          onClick={(e) => e.stopPropagation()}
+          className={`transition-colors p-1 rounded-md hover:bg-slate-50 ${
+            isBookmarked
+              ? "text-indigo-600 fill-indigo-600"
+              : "hover:text-slate-600"
+          }`}
+        >
+          <Bookmark size={15} />
+        </button>
       </div>
     </div>
   );

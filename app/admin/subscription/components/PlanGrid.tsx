@@ -107,7 +107,7 @@ import {
   Trash2,
   MoreVertical,
 } from "lucide-react";
-import { Plan } from "../types/subscription";
+import { Plan } from "../type/subscription";
 
 interface Props {
   plans: Plan[];

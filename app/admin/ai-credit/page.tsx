@@ -8,10 +8,19 @@ import {
   HelpCircle,
   BarChart3,
   Presentation,
+  ListChecks,
+  MessageSquare,
 } from "lucide-react";
+import { toast } from "sonner";
+import {
+  useGetFeatureCostsQuery,
+  useUpdateFeatureCostsMutation,
+  type AdminFeatureConfig,
+} from "@/slices/Admin";
 
 interface FeatureItem {
   id: string;
+  feature: string;
   name: string;
   description: string;
   status: "ACTIVE" | "BETA";
@@ -23,59 +32,55 @@ interface FeatureItem {
   iconColor: string;
 }
 
-const INITIAL_FEATURES: FeatureItem[] = [
-  {
-    id: "1",
-    name: "Summarize Document",
-    description: "Basic text abstraction",
-    status: "ACTIVE",
-    currentCost: 2,
-    newCost: 2,
-    isPremiumOnly: false,
-    icon: FileText,
-    iconBg: "bg-indigo-50",
-    iconColor: "text-indigo-600",
-  },
-  {
-    id: "2",
-    name: "Generate Quiz",
-    description: "10-question multiple choice",
-    status: "ACTIVE",
-    currentCost: 4,
-    newCost: 4,
-    isPremiumOnly: true,
-    icon: HelpCircle,
-    iconBg: "bg-amber-50",
-    iconColor: "text-amber-600",
-  },
-  {
-    id: "3",
-    name: "Analytics Report",
-    description: "Deep dive semantic analysis",
-    status: "BETA",
-    currentCost: 6,
-    newCost: 6,
-    isPremiumOnly: true,
-    icon: BarChart3,
-    iconBg: "bg-teal-50",
-    iconColor: "text-teal-600",
-  },
-  {
-    id: "4",
-    name: "Generate PPT",
-    description: "Full slide deck creation",
-    status: "ACTIVE",
-    currentCost: 8,
-    newCost: 8,
-    isPremiumOnly: true,
-    icon: Presentation,
-    iconBg: "bg-rose-50",
-    iconColor: "text-rose-600",
-  },
-];
+// Icons/colours aren't serialisable, so they stay client-side, keyed by the feature enum the
+// backend sends. The API is the source of truth for cost / premium gating / status.
+const ICONS: Record<
+  string,
+  { icon: React.ElementType; iconBg: string; iconColor: string }
+> = {
+  SUMMARIZE: { icon: FileText, iconBg: "bg-indigo-50", iconColor: "text-indigo-600" },
+  KEY_POINTS: { icon: ListChecks, iconBg: "bg-teal-50", iconColor: "text-teal-600" },
+  REPORT: { icon: BarChart3, iconBg: "bg-teal-50", iconColor: "text-teal-600" },
+  QUIZ: { icon: HelpCircle, iconBg: "bg-amber-50", iconColor: "text-amber-600" },
+  PPT: { icon: Presentation, iconBg: "bg-rose-50", iconColor: "text-rose-600" },
+  QA: { icon: MessageSquare, iconBg: "bg-sky-50", iconColor: "text-sky-600" },
+};
+
+const FALLBACK_ICON = {
+  icon: FileText,
+  iconBg: "bg-gray-50",
+  iconColor: "text-gray-600",
+};
+
+const buildDraft = (rows: AdminFeatureConfig[]): FeatureItem[] =>
+  rows.map((row) => {
+    const look = ICONS[row.feature] ?? FALLBACK_ICON;
+    return {
+      id: row.id,
+      feature: row.feature,
+      name: row.name,
+      description: row.description,
+      status: row.status === "BETA" ? "BETA" : "ACTIVE",
+      currentCost: row.cost,
+      newCost: row.cost,
+      isPremiumOnly: row.premiumOnly,
+      ...look,
+    };
+  });
 
 export default function AIFeaturePricing() {
-  const [features, setFeatures] = useState<FeatureItem[]>(INITIAL_FEATURES);
+  const { data, isLoading, isError } = useGetFeatureCostsQuery();
+  const [saveFeatureCosts, { isLoading: isSaving }] =
+    useUpdateFeatureCostsMutation();
+  const [features, setFeatures] = useState<FeatureItem[]>([]);
+
+  // Seed the editable draft from server data during render (not in an effect) so a fresh
+  // fetch reseeds without cascading re-renders. Local edits persist until the data changes.
+  const [seed, setSeed] = useState<AdminFeatureConfig[] | undefined>(undefined);
+  if (data && data !== seed) {
+    setSeed(data);
+    setFeatures(buildDraft(data));
+  }
 
   const handleCostChange = (id: string, value: string) => {
     const numericValue = parseInt(value, 10) || 0;
@@ -95,7 +100,26 @@ export default function AIFeaturePricing() {
   };
 
   const handleDiscard = () => {
-    setFeatures(INITIAL_FEATURES);
+    if (data) setFeatures(buildDraft(data));
+  };
+
+  const handleSave = async () => {
+    try {
+      await saveFeatureCosts(
+        features.map((f) => ({
+          feature: f.feature,
+          cost: Math.max(0, f.newCost),
+          premiumOnly: f.isPremiumOnly,
+          status: f.status,
+        }))
+      ).unwrap();
+      toast.success("Feature pricing saved");
+    } catch (err) {
+      toast.error(
+        (err as { data?: { message?: string } })?.data?.message ||
+          "Failed to save changes"
+      );
+    }
   };
 
   return (
@@ -119,9 +143,13 @@ export default function AIFeaturePricing() {
             >
               Discard Draft
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-[#4F46E5] hover:bg-[#4338CA] text-white rounded-lg text-sm font-semibold shadow-sm transition">
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="flex items-center gap-2 px-4 py-2 bg-[#4F46E5] hover:bg-[#4338CA] text-white rounded-lg text-sm font-semibold shadow-sm transition disabled:opacity-60 disabled:cursor-not-allowed"
+            >
               <Save className="w-4 h-4" />
-              Save Changes
+              {isSaving ? "Saving…" : "Save Changes"}
             </button>
           </div>
         </div>
@@ -149,7 +177,20 @@ export default function AIFeaturePricing() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 text-sm">
-                {features.map((feature) => {
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={5} className="py-10 text-center text-gray-400">
+                      Loading features…
+                    </td>
+                  </tr>
+                ) : isError ? (
+                  <tr>
+                    <td colSpan={5} className="py-10 text-center text-rose-500">
+                      Failed to load features
+                    </td>
+                  </tr>
+                ) : (
+                  features.map((feature) => {
                   const Icon = feature.icon;
                   return (
                     <tr
@@ -228,7 +269,8 @@ export default function AIFeaturePricing() {
                       </td>
                     </tr>
                   );
-                })}
+                  })
+                )}
               </tbody>
             </table>
           </div>

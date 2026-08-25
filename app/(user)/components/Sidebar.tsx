@@ -26,6 +26,7 @@ export default function Sidebar() {
     { icon: <FileText size={18} />, label: "My Notes", link: "/note" },
     { icon: <Users size={18} />, label: "Groups", link: "/group" },
     { icon: <HelpCircle size={18} />, label: "Quiz", link: "/quiz" },
+    { icon: <HelpCircle size={18} />, label: "Ai Credit", link: "/ai-credit" },
     {
       icon: <MessageSquare size={18} />,
       label: "Community",

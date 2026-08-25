@@ -4,7 +4,7 @@ import { TrendingUp, LucideIcon } from "lucide-react";
 interface StatCardProps {
   title: string;
   value: string;
-  trend: string;
+  trend?: string;
   icon: LucideIcon;
   iconColor?: string;
   bgColor?: string;
@@ -27,11 +27,13 @@ export const StatCard = ({
         <h3 className="text-2xl font-bold text-slate-800 tracking-tight">
           {value}
         </h3>
-        <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
-          <TrendingUp className="w-3.5 h-3.5" />
-          <span>{trend}</span>
-          <span className="text-slate-400 font-normal">vs last month</span>
-        </div>
+        {trend && (
+          <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
+            <TrendingUp className="w-3.5 h-3.5" />
+            <span>{trend}</span>
+            <span className="text-slate-400 font-normal">vs last month</span>
+          </div>
+        )}
       </div>
       <div className={`p-3 rounded-xl ${bgColor}`}>
         <Icon className={`w-5 h-5 ${iconColor}`} />

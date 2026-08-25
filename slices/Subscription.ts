@@ -47,6 +47,26 @@ export interface CreditTransaction {
 
 export type FeatureCosts = Record<string, number>;
 
+export interface PlanFeature {
+  text: string;
+  included: boolean;
+}
+
+// Public view of an admin-configured plan (active plans only). Mirrors SubscriptionPlanDTO; the
+// same shape the admin grid uses, exposed read-only to users for the pricing surface.
+export interface PublicPlan {
+  id: string;
+  name: string;
+  price: number;
+  period: string;
+  tier: string;
+  creditAllowance: number;
+  refreshDays: number;
+  features: PlanFeature[];
+  active: boolean;
+  sortOrder: number;
+}
+
 export const subscriptionApi = createApi({
   reducerPath: "subscriptionApi",
   baseQuery: customBaseQuery,
@@ -78,6 +98,15 @@ export const subscriptionApi = createApi({
       providesTags: ["Subscription"],
     }),
 
+    // GET /api/subscription/plans - active admin-configured plans for the pricing surface.
+    getPlans: builder.query<PublicPlan[], void>({
+      query: () => ({
+        url: "/subscription/plans",
+        method: "GET",
+      }),
+      providesTags: ["Subscription"],
+    }),
+
     // GET /api/ai/usage - append-only credit ledger for the current user.
     getUsage: builder.query<CreditTransaction[], void>({
       query: () => ({
@@ -102,6 +131,7 @@ export const {
   useGetCreditsQuery,
   useGetFeatureCostsQuery,
   useGetSubscriptionQuery,
+  useGetPlansQuery,
   useGetUsageQuery,
   useUpgradeMutation,
 } = subscriptionApi;

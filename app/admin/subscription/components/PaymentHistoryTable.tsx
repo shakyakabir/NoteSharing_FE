@@ -2,7 +2,7 @@
 
 import React from "react";
 import { CheckCircle2 } from "lucide-react";
-import { PaymentHistoryItem } from "../types/subscription";
+import { PaymentHistoryItem } from "../type/subscription";
 
 interface Props {
   history: PaymentHistoryItem[];

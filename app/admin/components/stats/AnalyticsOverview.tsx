@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { MoreVertical } from "lucide-react";
 import {
@@ -8,23 +9,30 @@ import {
   YAxis,
   Tooltip,
 } from "recharts";
+import { useGetAnalyticsQuery } from "@/slices/Admin";
 
-const chartData = [
-  { month: "Jan", subscription: 30, ads: 20 },
-  { month: "Feb", subscription: 42, ads: 25 },
-  { month: "Mar", subscription: 40, ads: 30 },
-  { month: "Apr", subscription: 45, ads: 35 },
-  { month: "May", subscription: 60, ads: 42 },
-  { month: "Jun", subscription: 90, ads: 48 },
-];
-
-const aiFeatures = [
-  { name: "Summarize", percentage: 45, color: "bg-indigo-600" },
-  { name: "Quiz Generation", percentage: 30, color: "bg-emerald-500" },
-  { name: "Report Analysis", percentage: 25, color: "bg-amber-600" },
+// Bar colours stay client-side (not serialisable); assigned by position to whatever
+// features the backend reports usage for.
+const BAR_COLORS = [
+  "bg-indigo-600",
+  "bg-emerald-500",
+  "bg-amber-600",
+  "bg-sky-500",
+  "bg-rose-500",
+  "bg-violet-500",
 ];
 
 export const AnalyticsOverview = () => {
+  const { data } = useGetAnalyticsQuery();
+
+  // No payment system yet → revenueBreakdown is empty; render an honest empty state.
+  const chartData = data?.revenueBreakdown ?? [];
+  const aiFeatures = (data?.featureUsage ?? []).map((f, i) => ({
+    name: f.name,
+    percentage: Math.round(f.percent),
+    color: BAR_COLORS[i % BAR_COLORS.length],
+  }));
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Chart Section */}
@@ -39,48 +47,54 @@ export const AnalyticsOverview = () => {
         </div>
 
         <div className="h-64 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData}>
-              <defs>
-                <linearGradient id="colorSub" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.15} />
-                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="month" hide />
-              <YAxis hide />
-              <Tooltip />
-              <Area
-                type="monotone"
-                dataKey="subscription"
-                stroke="#6366f1"
-                strokeWidth={2.5}
-                fillOpacity={1}
-                fill="url(#colorSub)"
-              />
-              <Area
-                type="monotone"
-                dataKey="ads"
-                stroke="#10b981"
-                strokeWidth={2}
-                fillOpacity={0}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          {chartData.length === 0 ? (
+            <div className="h-full w-full flex items-center justify-center text-sm text-slate-400">
+              No revenue data yet
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData}>
+                <defs>
+                  <linearGradient id="colorSub" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.15} />
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="month" hide />
+                <YAxis hide />
+                <Tooltip />
+                <Area
+                  type="monotone"
+                  dataKey="subscription"
+                  stroke="#6366f1"
+                  strokeWidth={2.5}
+                  fillOpacity={1}
+                  fill="url(#colorSub)"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="ads"
+                  stroke="#10b981"
+                  strokeWidth={2}
+                  fillOpacity={0}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
         </div>
 
         <div className="flex items-center gap-6 mt-4 text-xs font-semibold text-slate-500">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
-            <span>Subscription (60%)</span>
+            <span>Subscription</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-            <span>Point Shop (25%)</span>
+            <span>Point Shop</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-amber-600"></span>
-            <span>Ad Revenue (15%)</span>
+            <span>Ad Revenue</span>
           </div>
         </div>
       </div>
@@ -91,20 +105,24 @@ export const AnalyticsOverview = () => {
           AI Feature Usage
         </h2>
         <div className="space-y-6">
-          {aiFeatures.map((feature) => (
-            <div key={feature.name} className="space-y-2">
-              <div className="flex justify-between text-xs font-semibold text-slate-600">
-                <span>{feature.name}</span>
-                <span className="text-slate-400">{feature.percentage}%</span>
+          {aiFeatures.length === 0 ? (
+            <p className="text-sm text-slate-400">No usage data yet</p>
+          ) : (
+            aiFeatures.map((feature) => (
+              <div key={feature.name} className="space-y-2">
+                <div className="flex justify-between text-xs font-semibold text-slate-600">
+                  <span>{feature.name}</span>
+                  <span className="text-slate-400">{feature.percentage}%</span>
+                </div>
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full ${feature.color} rounded-full`}
+                    style={{ width: `${feature.percentage}%` }}
+                  />
+                </div>
               </div>
-              <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                <div
-                  className={`h-full ${feature.color} rounded-full`}
-                  style={{ width: `${feature.percentage}%` }}
-                />
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>

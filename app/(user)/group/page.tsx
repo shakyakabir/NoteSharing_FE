@@ -127,6 +127,8 @@ import {
   Clock,
   FileText,
   Folder,
+  Calendar,
+  Share2,
 } from "lucide-react";
 import Modal from "./modal/Collaboratemodal";
 import {
@@ -139,20 +141,20 @@ import { useRouter } from "next/navigation";
 // Types
 type BadgeType = "OWNER" | "JOINED";
 
-interface GroupCardProps {
-  id: string;
-  name: string;
-  avatarBgColor: string;
-  avatarTextColor?: string;
-  role: BadgeType;
-  title: string;
-  updatedAt: string;
-  notesCount: number;
-  filesCount: number;
-  membersCount: number;
-  memberAvatars: string[];
-  onClick?: () => void;
-}
+// interface GroupCardProps {
+//   id: string;
+//   name: string;
+//   avatarBgColor: string;
+//   avatarTextColor?: string;
+//   role: BadgeType;
+//   title: string;
+//   updatedAt: string;
+//   notesCount: number;
+//   filesCount: number;
+//   membersCount: number;
+//   memberAvatars: string[];
+//   onClick?: () => void;
+// }
 
 interface ActionCardProps {
   icon: React.ReactNode;
@@ -161,76 +163,6 @@ interface ActionCardProps {
   description: string;
   onClick?: () => void;
 }
-
-// Sample Data
-const GROUPS_DATA: GroupCardProps[] = [
-  {
-    id: "1",
-    initials: "AI",
-    avatarBgColor: "bg-indigo-100",
-    avatarTextColor: "text-indigo-600",
-    role: "OWNER",
-    title: "AI Product Team",
-    updatedAt: "Updated 5 mins ago",
-    notesCount: 24,
-    filesCount: 6,
-    membersCount: 8,
-    memberAvatars: [
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80",
-    ],
-  },
-  {
-    id: "2",
-    initials: "RG",
-    avatarBgColor: "bg-amber-100",
-    avatarTextColor: "text-amber-600",
-    role: "JOINED",
-    title: "Research Group",
-    updatedAt: "Updated 20 mins ago",
-    notesCount: 12,
-    filesCount: 3,
-    membersCount: 5,
-    memberAvatars: [
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
-    ],
-  },
-  {
-    id: "3",
-    initials: "MT",
-    avatarBgColor: "bg-purple-100",
-    avatarTextColor: "text-purple-600",
-    role: "JOINED",
-    title: "Marketing Team",
-    updatedAt: "Updated yesterday",
-    notesCount: 18,
-    filesCount: 4,
-    membersCount: 6,
-    memberAvatars: [
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80",
-    ],
-  },
-  {
-    id: "4",
-    initials: "UP",
-    avatarBgColor: "bg-emerald-400",
-    avatarTextColor: "text-white",
-    role: "OWNER",
-    title: "University Project",
-    updatedAt: "Updated 2 hours ago",
-    notesCount: 9,
-    filesCount: 2,
-    membersCount: 4,
-    memberAvatars: [
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
-    ],
-  },
-];
 
 // Sub-component: Action Card
 const ActionCard: React.FC<ActionCardProps> = ({
@@ -259,93 +191,112 @@ const ActionCard: React.FC<ActionCardProps> = ({
   </div>
 );
 
-// Sub-component: Group Card
-const GroupCard: React.FC<GroupCardProps> = ({
+export interface GroupCardProps {
+  id: string;
+  name: string;
+  description?: string;
+  role: string;
+  createdAt: string;
+  shareCode?: string;
+  notesCount?: number;
+  filesCount?: number;
+  membersCount?: number;
+  onClick?: () => void;
+}
+
+export const GroupCard: React.FC<GroupCardProps> = ({
   name,
-  avatarBgColor,
-  avatarTextColor = "text-gray-800",
+  description,
   role,
-  title,
-  updatedAt,
-  notesCount,
-  filesCount,
-  membersCount,
-  memberAvatars,
+  createdAt,
+  shareCode = "N/A",
+  notesCount = 0,
+  filesCount = 0,
+  membersCount = 0,
   onClick,
 }) => {
-  const extraCount = membersCount - memberAvatars?.length || 0;
-
   return (
     <div
       onClick={onClick}
-      className="flex flex-col justify-between rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-200 hover:border-gray-200 hover:shadow-md cursor-pointer"
+      className="w-full max-w-sm rounded-2xl border border-indigo-100 bg-white p-5 shadow-xs hover:border-indigo-200 hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col justify-between"
     >
-      <div className="p-5">
-        {/* Header Badge & Initials */}
-        <div className="flex items-center justify-between">
-          <div
-            className={`flex h-12 w-12 items-center justify-center rounded-xl font-bold ${avatarBgColor} ${avatarTextColor}`}
-          >
-            {name}
+      <div>
+        {/* Header: Title & Role Badge */}
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <h3 className="text-lg font-bold text-slate-900 leading-snug">
+              {name}
+            </h3>
+            {description && (
+              <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">
+                {description}
+              </p>
+            )}
           </div>
           <span
-            className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold tracking-wider ${
+            className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wide uppercase ${
               role === "OWNER"
-                ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                : "bg-gray-100 text-gray-500"
+                ? "bg-indigo-600 text-white"
+                : "bg-slate-100 text-slate-600"
             }`}
           >
             {role}
           </span>
         </div>
 
-        {/* Info */}
-        <div className="mt-4">
-          <h3 className="font-bold text-gray-900">{title}</h3>
-          <div className="mt-1 flex items-center gap-1.5 text-xs text-gray-500">
-            <Clock className="h-3.5 w-3.5 text-gray-400" />
-            <span>{updatedAt}</span>
+        {/* Metadata Details */}
+        <div className="mt-4 space-y-2 text-xs text-slate-500">
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-slate-400 shrink-0" />
+            <span>
+              Joined on{" "}
+              {new Date(createdAt).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </span>
           </div>
+
+          {shareCode && (
+            <div className="flex items-center gap-2">
+              <Share2 className="h-4 w-4 text-slate-400 shrink-0" />
+              <span>Share Code:</span>
+              <span className="rounded-md bg-slate-100 px-2 py-0.5 font-mono text-[11px] font-semibold text-slate-700">
+                {shareCode}
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* Stats */}
-        <div className="mt-4 flex items-center gap-4 text-xs font-medium text-gray-500">
+        <div className="my-4 border-t border-slate-100" />
+
+        {/* Stats Section */}
+        <div className="flex items-center gap-5 text-xs text-slate-600 font-medium">
           <div className="flex items-center gap-1.5">
-            <FileText className="h-4 w-4 text-gray-400" />
+            <FileText className="h-4 w-4 text-slate-400" />
             <span>{notesCount} notes</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Folder className="h-4 w-4 text-gray-400" />
+            <Folder className="h-4 w-4 text-slate-400" />
             <span>{filesCount} files</span>
           </div>
         </div>
       </div>
 
-      {/* Footer / Members */}
-      <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3.5 bg-gray-50/50 rounded-b-2xl">
-        <div className="flex items-center -space-x-2 overflow-hidden">
-          {memberAvatars?.map((url, idx) => (
-            <img
-              key={idx}
-              className="inline-block h-7 w-7 rounded-full ring-2 ring-white object-cover"
-              src={url}
-              alt="Avatar"
-            />
-          ))}
-          {extraCount > 0 && (
-            <div className="flex h-7 items-center justify-center rounded-full bg-gray-100 px-1.5 ring-2 ring-white text-[10px] font-medium text-gray-600">
-              +{extraCount}
-            </div>
-          )}
-        </div>
-        <span className="text-xs font-semibold text-gray-600">
+      {/* Footer Action */}
+      <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-3.5 text-xs">
+        <span className="text-slate-500 font-medium">
           {membersCount} members
         </span>
+        <button className="flex items-center gap-1 font-bold text-indigo-600 hover:text-indigo-700 transition-colors">
+          <span>Enter Workspace</span>
+          <ArrowRight className="h-3.5 w-3.5" />
+        </button>
       </div>
     </div>
   );
 };
-
 // Main Section Component
 export default function CollaborationDashboard() {
   const [showModal, setShowModal] = useState(false);
@@ -427,21 +378,25 @@ export default function CollaborationDashboard() {
           </div>
 
           {/* Group Cards Grid */}
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {getGroups?.map((group: any) => (
+            {getGroups?.map((groupItem: any) => (
               <GroupCard
-                key={group.id}
-                name={group.group.name}
-                id={""}
-                avatarBgColor={""}
-                role={group.role}
-                title={group.group.description}
-                updatedAt={group.group.createdAt}
-                notesCount={0}
-                filesCount={0}
-                onClick={() => router.push(`group/note/${group.group.id}`)}
-                membersCount={0}
-                memberAvatars={[]}
+                key={groupItem.id || groupItem.group?.id}
+                id={groupItem.group?.id}
+                name={groupItem.group?.name || "Untitled Group"}
+                description={groupItem.group?.description}
+                role={groupItem.role || "MEMBER"}
+                createdAt={
+                  groupItem.group?.createdAt || new Date().toISOString()
+                }
+                shareCode={groupItem.group?.shareCode || "N/A"}
+                notesCount={groupItem.group?._count?.notes || 0}
+                filesCount={groupItem.group?._count?.files || 0}
+                membersCount={groupItem.group?._count?.members || 0}
+                onClick={() =>
+                  router.push(`/group/note/${groupItem.group?.id}`)
+                }
               />
             ))}
           </div>

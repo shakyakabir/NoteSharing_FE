@@ -52,3 +52,13 @@ export const getInsufficientCredits = (
   }
   return null;
 };
+
+/**
+ * Detect the backend's "this feature isn't on your plan" error (a premium-only feature used on a
+ * free plan; HTTP 403 with the code wrapped in ApiResponse.data). Returns true so callers can show
+ * an upgrade prompt. Any other error shape returns false. Mirrors getInsufficientCredits, since the
+ * premium gate - like the credit balance - is enforced server-side and only surfaces as this error.
+ */
+export const getFeatureNotAvailable = (error: any): boolean => {
+  return error?.data?.data?.code === "FEATURE_NOT_AVAILABLE";
+};

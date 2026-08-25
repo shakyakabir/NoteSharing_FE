@@ -33,6 +33,7 @@ import {
 import Tiptap from "@/components/rich-text-editor/Tiptap";
 import Button from "@/app/components/ui/Button";
 import { useGetNotesIDQuery, useUpdateNotesMutation } from "@/slices/Note";
+import { useCreateSummaryMutation, useGetSummaryQuery } from "@/slices/Ai";
 
 export default function DetailNote() {
   const params = useParams();
@@ -43,12 +44,14 @@ export default function DetailNote() {
     skip: !noteId,
   });
   const [updateNotes, { isLoading: isUpdating }] = useUpdateNotesMutation();
+  const { data: summaryData, isLoading: isSummaryData } =
+    useGetSummaryQuery(noteId);
 
   const [title, setTitle] = useState("");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [chatMessage, setChatMessage] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
+  const [createSummary, { isLoading: isSummary }] = useCreateSummaryMutation();
   // TipTap Editor Initialization
   const editor = useEditor({
     extensions: [
@@ -139,6 +142,13 @@ export default function DetailNote() {
   const isPublic =
     note?.visibility?.toLowerCase() === "public" || !note?.visibility;
 
+  const handleSummary = async () => {
+    const response = await createSummary(noteId).unwrap();
+    console.log(response, "summaryresponse");
+  };
+
+  const getData = summaryData?.summaryContent;
+  console.log(getData, "sd");
   return (
     <div className="flex h-[calc(100vh-4rem)] bg-slate-100/60 overflow-hidden -m-4 md:-m-8">
       {/* ================= MAIN DOCUMENT AREA ================= */}
@@ -242,13 +252,14 @@ export default function DetailNote() {
             />
 
             {/* Document Sheet Surface */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-8 md:p-12 transition-all">
+            <div>
               <Tiptap editor={editor} />
             </div>
           </div>
         </main>
       </div>
 
+      {/* ================= AI ASSISTANT SIDEBAR ================= */}
       {/* ================= AI ASSISTANT SIDEBAR ================= */}
       {isSidebarOpen && (
         <aside className="w-80 border-l border-slate-200 bg-white flex flex-col h-full shrink-0 shadow-lg md:shadow-none transition-all duration-300">
@@ -268,14 +279,17 @@ export default function DetailNote() {
             </button>
           </div>
 
-          {/* Quick Actions List */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-2.5">
-            <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase px-1">
+          {/* Quick Actions & Content Area */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase px-1 block">
               Document Tools
             </span>
 
             {/* Action 1: Summarize */}
-            <button className="w-full text-left p-3 rounded-xl bg-slate-50/80 hover:bg-indigo-50/50 border border-slate-200/60 hover:border-indigo-200 transition-all group">
+            <button
+              onClick={handleSummary}
+              className="w-full text-left p-3 rounded-xl bg-slate-50/80 hover:bg-indigo-50/50 border border-slate-200/60 hover:border-indigo-200 transition-all group"
+            >
               <div className="flex items-start gap-3">
                 <div className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 group-hover:border-indigo-200 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-2xs">
                   <FileText size={15} />
@@ -291,39 +305,50 @@ export default function DetailNote() {
               </div>
             </button>
 
-            {/* Action 2: Generate Quiz */}
-            <button className="w-full text-left p-3 rounded-xl bg-slate-50/80 hover:bg-indigo-50/50 border border-slate-200/60 hover:border-indigo-200 transition-all group">
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 group-hover:border-indigo-200 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-2xs">
-                  <HelpCircle size={15} />
-                </div>
-                <div>
-                  <h4 className="text-xs font-semibold text-slate-800 group-hover:text-indigo-900">
-                    Generate Quiz
-                  </h4>
-                  <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed line-clamp-2">
-                    Create practice questions to test your knowledge.
-                  </p>
-                </div>
+            {/* Dynamic AI Data Output */}
+            {getData && (
+              <div className="p-3 bg-indigo-50/50 border border-indigo-100 rounded-xl text-xs text-slate-700 leading-relaxed transition-all">
+                <p className="whitespace-pre-wrap">{getData}</p>
               </div>
-            </button>
+            )}
 
-            {/* Action 3: Action Items */}
-            <button className="w-full text-left p-3 rounded-xl bg-slate-50/80 hover:bg-indigo-50/50 border border-slate-200/60 hover:border-indigo-200 transition-all group">
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 group-hover:border-indigo-200 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-2xs">
-                  <CheckSquare size={15} />
-                </div>
-                <div>
-                  <h4 className="text-xs font-semibold text-slate-800 group-hover:text-indigo-900">
-                    Extract Action Items
-                  </h4>
-                  <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed line-clamp-2">
-                    Automatically convert notes into actionable tasks.
-                  </p>
-                </div>
-              </div>
-            </button>
+            {/* Action 2: Generate Quiz (Commented Out) */}
+            {/* 
+      <button className="w-full text-left p-3 rounded-xl bg-slate-50/80 hover:bg-indigo-50/50 border border-slate-200/60 hover:border-indigo-200 transition-all group">
+        <div className="flex items-start gap-3">
+          <div className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 group-hover:border-indigo-200 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-2xs">
+            <HelpCircle size={15} />
+          </div>
+          <div>
+            <h4 className="text-xs font-semibold text-slate-800 group-hover:text-indigo-900">
+              Generate Quiz
+            </h4>
+            <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed line-clamp-2">
+              Create practice questions to test your knowledge.
+            </p>
+          </div>
+        </div>
+      </button> 
+      */}
+
+            {/* Action 3: Action Items (Commented Out) */}
+            {/* 
+      <button className="w-full text-left p-3 rounded-xl bg-slate-50/80 hover:bg-indigo-50/50 border border-slate-200/60 hover:border-indigo-200 transition-all group">
+        <div className="flex items-start gap-3">
+          <div className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 group-hover:border-indigo-200 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-2xs">
+            <CheckSquare size={15} />
+          </div>
+          <div>
+            <h4 className="text-xs font-semibold text-slate-800 group-hover:text-indigo-900">
+              Extract Action Items
+            </h4>
+            <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed line-clamp-2">
+              Automatically convert notes into actionable tasks.
+            </p>
+          </div>
+        </div>
+      </button> 
+      */}
           </div>
 
           {/* Contextual Assistant Chat Footer */}
