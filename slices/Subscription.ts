@@ -66,6 +66,20 @@ export interface PublicPlan {
   active: boolean;
   sortOrder: number;
 }
+export interface SubscriptionCheckoutRequest {
+  planId: string;
+  email: string;
+  paymentMethod: "ESEWA" | "KHALTI";
+}
+
+export interface PaymentInitiationResponse {
+  paymentId: string;
+  paymentMethod: "ESEWA" | "KHALTI";
+  paymentUrl: string;
+  transactionUuid: string;
+  pidx?: string;
+  formData?: Record<string, string>;
+}
 
 export const subscriptionApi = createApi({
   reducerPath: "subscriptionApi",
@@ -107,6 +121,17 @@ export const subscriptionApi = createApi({
       providesTags: ["Subscription"],
     }),
 
+    createSubscriptionCheckout: builder.mutation<
+      PaymentInitiationResponse,
+      SubscriptionCheckoutRequest
+    >({
+      query: (body) => ({
+        url: "/checkout",
+        method: "POST",
+        body,
+      }),
+    }),
+
     // GET /api/ai/usage - append-only credit ledger for the current user.
     getUsage: builder.query<CreditTransaction[], void>({
       query: () => ({
@@ -132,6 +157,7 @@ export const {
   useGetFeatureCostsQuery,
   useGetSubscriptionQuery,
   useGetPlansQuery,
+  useCreateSubscriptionCheckoutMutation,
   useGetUsageQuery,
   useUpgradeMutation,
 } = subscriptionApi;

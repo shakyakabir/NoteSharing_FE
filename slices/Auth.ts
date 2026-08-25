@@ -27,7 +27,17 @@ export const authApi = createApi({
         method: "POST",
       }),
     }),
+    getUserProfile: builder.query<any, void>({
+      query: () => ({
+        url: "/user/profile",
+        method: "GET",
+      }),
+    }),
   }),
 });
-export const { useRegisterMutation, useVerifyOtpMutation, useLoginMutation } =
-  authApi;
+export const {
+  useRegisterMutation,
+  useVerifyOtpMutation,
+  useGetUserProfileQuery,
+  useLoginMutation,
+} = authApi;

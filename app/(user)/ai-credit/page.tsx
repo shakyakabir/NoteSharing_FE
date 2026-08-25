@@ -26,8 +26,6 @@ export default function SubscriptionPage() {
       </div>
 
       <PlanOverview />
-      {/* <PremiumUpgradeCard /> */}
-      {/* <AvailablePlans /> */}
       <CreditUsageHistory />
     </div>
   );
