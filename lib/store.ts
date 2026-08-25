@@ -6,6 +6,7 @@ import { rewardApi } from "@/slices/Reward";
 import { configureStore } from "@reduxjs/toolkit";
 import { quizApi } from "@/slices/Quiz";
 import { memeberApi } from "@/slices/GroupMember";
+import { subscriptionApi } from "@/slices/Subscription";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     [communityApi.reducerPath]: communityApi.reducer,
     [memeberApi.reducerPath]: memeberApi.reducer,
     [rewardApi.reducerPath]: rewardApi.reducer,
+    [subscriptionApi.reducerPath]: subscriptionApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -26,6 +28,7 @@ export const store = configureStore({
       quizApi.middleware,
       memeberApi.middleware,
       rewardApi.middleware,
+      subscriptionApi.middleware,
     ),
 });
 

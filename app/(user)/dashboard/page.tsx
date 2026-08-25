@@ -10,11 +10,13 @@ import TopContributors from "./components/TopContributors";
 import EarningsGrowth from "./components/EarningsGrowth";
 import { useGetNotesQuery } from "@/slices/Note";
 import { useGetPointBalanceQuery } from "@/slices/Reward";
+import { useAiCredits } from "@/hooks/ai/useAiCredits";
 
 export default function Dashboard() {
   const { data: notes = [], isLoading } = useGetNotesQuery();
   const { data: balance, isLoading: isBalanceLoading } =
     useGetPointBalanceQuery();
+  const { credits } = useAiCredits();
   console.log(balance, "balance");
   const totalNotes = notes.length;
   return (
@@ -49,10 +51,14 @@ export default function Dashboard() {
           icon={<Cpu className="w-5 h-5 text-amber-800" />}
           iconBg="bg-amber-100"
           title="AI Credits"
-          value={balance?.aiQuotaUsed.toString() || "0"}
-          badge="Refreshes in 4d"
+          value={credits ? `${credits.currentCredits}/${credits.maxCredits}` : "0"}
+          badge={credits ? `Refreshes in ${credits.daysUntilRefresh}d` : ""}
           badgeColor="text-slate-500 font-normal"
-          progressBar={{ current: 850, total: 1000 }}
+          progressBar={
+            credits
+              ? { current: credits.currentCredits, total: credits.maxCredits }
+              : undefined
+          }
         />
       </div>
       <div className="max-w-7xl mt-5 mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">

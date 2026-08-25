@@ -6,6 +6,9 @@ import { ReferenceReportSection } from "./components/ReferenceReportSection";
 import { ConfigurationSummary } from "./components/ConfigurationSummary";
 import { useGetNotesQuery } from "@/slices/Note";
 import { useCreateReportMutation } from "@/slices/Ai";
+import { toast } from "sonner";
+import AiCostNotice from "../../components/AiCostNotice";
+import { useAiCredits, getInsufficientCredits } from "@/hooks/ai/useAiCredits";
 // import * as pdfjsLib from "pdfjs-dist";
 
 export default function GenerateReport() {
@@ -16,6 +19,7 @@ export default function GenerateReport() {
 
   const { data: selectedNotes = [], isLoading } = useGetNotesQuery();
   const [createRepo, { isLoading: createLoading }] = useCreateReportMutation();
+  const { canAfford, refetch } = useAiCredits();
   const [prompt, setPrompt] = useState("");
   const [selectedNote, setSelectedNote] = useState<any>("");
   const [note, setNote] = useState<any>("");
@@ -106,6 +110,11 @@ export default function GenerateReport() {
         return;
       }
 
+      if (!canAfford("REPORT")) {
+        toast.error("Not enough AI credits to generate a report.");
+        return;
+      }
+
       let sourceContent = "";
       let noteId = null;
       let title = "Generated Report";
@@ -182,9 +191,18 @@ export default function GenerateReport() {
 
       console.log("Report generated successfully:", response);
 
+      refetch();
       alert("Report generated successfully.");
     } catch (error) {
       console.log("Generate report failed:", error);
+
+      const insufficient = getInsufficientCredits(error);
+      if (insufficient) {
+        toast.error(
+          `Not enough AI credits - needs ${insufficient.requiredCredits}, you have ${insufficient.availableCredits}.`,
+        );
+        return;
+      }
 
       alert("Failed to generate report.");
     }
@@ -208,6 +226,7 @@ export default function GenerateReport() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           {/* Left Column (Main Form) */}
           <div className="lg:col-span-2 space-y-6">
+            <AiCostNotice feature="REPORT" />
             <SourceMaterialSection
               selectedNotes={selectedNotes}
               onRemoveNote={handleRemoveNote}
