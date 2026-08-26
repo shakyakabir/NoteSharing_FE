@@ -30,11 +30,13 @@ const ResetPasswordForm = () => {
         {/* Inputs */}
         <div className="space-y-4 flex flex-col">
           <Input
-            type="Password"
+            name="email"
+            type="email"
             placeHolder="Enter your Email"
             labelName="Email"
           />
           <Input
+            name="password"
             type="password"
             placeHolder="Enter your Password"
             labelName="Password"

@@ -4,17 +4,24 @@ import Button from "@/app/components/ui/Button";
 import Input from "@/app/components/ui/Input";
 import Text from "@/app/components/ui/Text";
 import note from "@/public/note.svg";
-import { useLoginMutation } from "@/slices/Auth";
+import { useLazyGetUserProfileQuery, useLoginMutation } from "@/slices/Auth";
+import { setProfile } from "@/slices/profileSlice";
+import { RootState } from "@reduxjs/toolkit/query";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  const dispatch = useDispatch();
+
+  const [getUserProfile] = useLazyGetUserProfileQuery();
   const onHandleGoogleSignIn = () => {
     window.location.href = "http://localhost:8080/oauth2/authorization/google";
   };
@@ -36,8 +43,15 @@ const LoginForm = () => {
     try {
       const response = await postLogin(formData).unwrap();
       if (response.status === "200") {
-        router.push("/dashboard");
         localStorage.setItem("email", response.data);
+        const profileResponse = await getUserProfile().unwrap();
+        console.log(profileResponse, "authprofile");
+
+        if (profileResponse) {
+          dispatch(setProfile(profileResponse));
+        }
+
+        router.push("/dashboard");
       }
     } catch (error) {
       console.error("Failed to login:", error);

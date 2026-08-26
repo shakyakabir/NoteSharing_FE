@@ -8,7 +8,13 @@ import { useGetNotesQuery } from "@/slices/Note";
 import { useCreateReportMutation } from "@/slices/Ai";
 import { toast } from "sonner";
 import AiCostNotice from "../../components/AiCostNotice";
-import { useAiCredits, getInsufficientCredits } from "@/hooks/ai/useAiCredits";
+import RestrictedFeatureModal from "../../components/RestrictedFeatureModal";
+import {
+  useAiCredits,
+  getInsufficientCredits,
+  getFeatureNotAvailable,
+} from "@/hooks/ai/useAiCredits";
+import { useUserAccess } from "@/hooks/access/useUserAccess";
 // import * as pdfjsLib from "pdfjs-dist";
 
 export default function GenerateReport() {
@@ -20,6 +26,8 @@ export default function GenerateReport() {
   const { data: selectedNotes = [], isLoading } = useGetNotesQuery();
   const [createRepo, { isLoading: createLoading }] = useCreateReportMutation();
   const { canAfford, refetch } = useAiCredits();
+  const { isPremium, isPremiumFeature } = useUserAccess();
+  const [accessError, setAccessError] = useState<unknown>(null);
   const [prompt, setPrompt] = useState("");
   const [selectedNote, setSelectedNote] = useState<any>("");
   const [note, setNote] = useState<any>("");
@@ -115,6 +123,12 @@ export default function GenerateReport() {
         return;
       }
 
+      // Premium-only feature on a free plan: block early (the backend enforces the same gate).
+      if (isPremiumFeature("REPORT") && !isPremium) {
+        toast.error("This is a Premium feature. Upgrade to use it.");
+        return;
+      }
+
       let sourceContent = "";
       let noteId = null;
       let title = "Generated Report";
@@ -196,11 +210,8 @@ export default function GenerateReport() {
     } catch (error) {
       console.log("Generate report failed:", error);
 
-      const insufficient = getInsufficientCredits(error);
-      if (insufficient) {
-        toast.error(
-          `Not enough AI credits - needs ${insufficient.requiredCredits}, you have ${insufficient.availableCredits}.`,
-        );
+      if (getInsufficientCredits(error) || getFeatureNotAvailable(error)) {
+        setAccessError(error);
         return;
       }
 
@@ -251,6 +262,11 @@ export default function GenerateReport() {
             />
           </div>
         </div>
+
+        <RestrictedFeatureModal
+          error={accessError}
+          onClose={() => setAccessError(null)}
+        />
       </div>
     </div>
   );

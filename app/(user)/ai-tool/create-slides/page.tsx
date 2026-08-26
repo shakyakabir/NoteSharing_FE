@@ -20,6 +20,7 @@ import {
   getInsufficientCredits,
   getFeatureNotAvailable,
 } from "@/hooks/ai/useAiCredits";
+import { useUserAccess } from "@/hooks/access/useUserAccess";
 
 const CreateSlide = () => {
   const [show, setShow] = useState(false);
@@ -31,7 +32,11 @@ const CreateSlide = () => {
   const [presnt, setPresnt] = useState<any>(null);
   const [createPresentation, { isLoading }] = useCreatePresentationMutation();
   const { canAfford, refetch } = useAiCredits();
+  const { isPremium, isPremiumFeature } = useUserAccess();
   const [accessError, setAccessError] = useState<unknown>(null);
+
+  // Premium-only feature on a free plan: lock the action (the backend enforces the same gate).
+  const locked = isPremiumFeature("PPT") && !isPremium;
 
   const router = useRouter();
   const handleGenerate = async () => {
@@ -55,11 +60,8 @@ const CreateSlide = () => {
         router.push(`/ai-tool/create-slides/${presentationId}`);
       }
     } catch (err) {
-      const insufficient = getInsufficientCredits(err);
-      if (insufficient) {
-        toast.error(
-          `Not enough AI credits - needs ${insufficient.requiredCredits}, you have ${insufficient.availableCredits}.`,
-        );
+      if (getInsufficientCredits(err) || getFeatureNotAvailable(err)) {
+        setAccessError(err);
       } else {
         toast.error("Failed to generate presentation.");
       }
@@ -93,7 +95,7 @@ const CreateSlide = () => {
               <AiCostNotice feature="PPT" />
               <Button
                 onClick={handleGenerate}
-                disabled={isLoading || !canAfford("PPT")}
+                disabled={isLoading || !canAfford("PPT") || locked}
               >
                 {isLoading ? "Generating..." : "Generate Presentation"}
               </Button>
@@ -155,6 +157,11 @@ const CreateSlide = () => {
           }}
         />
       )}
+
+      <RestrictedFeatureModal
+        error={accessError}
+        onClose={() => setAccessError(null)}
+      />
     </div>
   );
 };

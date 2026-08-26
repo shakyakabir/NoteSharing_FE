@@ -1,21 +1,36 @@
 "use client";
+import { RootState } from "@/lib/store";
 import { Upload } from "lucide-react";
 import React from "react";
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import { toast } from "sonner";
 interface ReferenceProps {
   referenceFile: (file: File | null) => void;
 }
 export const ReferenceReportSection: React.FC<ReferenceProps> = ({
   referenceFile,
 }) => {
+  const profile = useSelector((state: RootState) => state.profile.profile);
   const [enabled, setEnabled] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleToggle = () => {
+    // If user is trying to enable it
+    if (!enabled && profile?.subscriptionTier !== "PREMIUM") {
+      toast.error("You need a Premium subscription to use a reference report.");
+      return;
+    }
+
+    setEnabled((prev) => !prev);
+  };
   const handleChange = (e) => {
     const fileValue = e.target.files?.[0];
     setFile(fileValue);
     referenceFile(fileValue);
   };
+
   return (
     <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-xs space-y-2">
       <div className="flex items-center justify-between">
@@ -25,7 +40,7 @@ export const ReferenceReportSection: React.FC<ReferenceProps> = ({
         </h3>
         <button
           type="button"
-          onClick={() => setEnabled(!enabled)}
+          onClick={handleToggle}
           className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
             enabled ? "bg-indigo-600" : "bg-gray-200"
           }`}

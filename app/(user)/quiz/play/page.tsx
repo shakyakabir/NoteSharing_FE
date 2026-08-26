@@ -17,16 +17,21 @@ interface QuizPlayProps {
   playerEmail?: string;
 }
 
-export default function QuizPlay({ quizId, playerEmail }: QuizPlayProps) {
+export default function QuizPlay() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [quizResult, setQuizResult] = useState<QuizResultDTO | null>(null);
   const [playQuiz] = usePlayQuizMutation();
 
-  const { data, isLoading, error } = useGetQuizIDQuery(
-    "f6c2b159-783f-4a6b-83f0-2084a78a3dcc",
-  );
+  const [quizId, setQuizId] = useState<string>("");
+  useEffect(() => {
+    const id = sessionStorage.getItem("quizPlayId");
+    setQuizId(id);
+  }, []);
+
+  const { data, isLoading, error } = useGetQuizIDQuery(quizId);
+  console.log(quizId, "this is test");
 
   useEffect(() => {
     if (data?.questionsJson) {
@@ -62,7 +67,7 @@ export default function QuizPlay({ quizId, playerEmail }: QuizPlayProps) {
 
       const result = await playQuiz({
         quizId,
-        playerEmail: playerEmail || Config.defaultEmail,
+
         answers: payload,
       }).unwrap();
 

@@ -30,6 +30,7 @@ const ForgotPassword = () => {
         {/* Inputs */}
         <div className="space-y-4 flex flex-col">
           <Input
+            name="email"
             type="email"
             placeHolder="Enter your Email"
             labelName="Email"

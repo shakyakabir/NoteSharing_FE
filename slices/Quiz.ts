@@ -108,12 +108,12 @@ export const quizApi = createApi({
 
     // POST /api/play?quizId=...&playerEmail=...
     playQuiz: builder.mutation<QuizResultDTO, PlayQuizArgs>({
-      query: ({ quizId, playerEmail, answers }) => ({
+      query: ({ quizId, answers }) => ({
         url: "/play",
         method: "POST",
         params: {
           quizId: quizId,
-          playerEmail: playerEmail || Config.defaultEmail,
+          playerEmail: Config.defaultEmail,
         },
         body: answers,
       }),

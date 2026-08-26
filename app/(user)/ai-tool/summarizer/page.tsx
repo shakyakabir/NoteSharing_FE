@@ -13,13 +13,18 @@ import {
   getInsufficientCredits,
   getFeatureNotAvailable,
 } from "@/hooks/ai/useAiCredits";
+import { useUserAccess } from "@/hooks/access/useUserAccess";
 
 const Summarizer = () => {
   const [textInput, setTextInput] = useState("");
   const [summary, setSummary] = useState("");
   const [summarize, { isLoading: isProcessing }] = useSummarizeMutation();
   const { canAfford, refetch } = useAiCredits();
+  const { isPremium, isPremiumFeature } = useUserAccess();
   const [accessError, setAccessError] = useState<unknown>(null);
+
+  // Premium-only feature on a free plan: lock the action (the backend enforces the same gate).
+  const locked = isPremiumFeature("SUMMARIZE") && !isPremium;
 
   const handleGenerate = async () => {
     try {
@@ -89,7 +94,7 @@ const Summarizer = () => {
         <div className="flex justify-end pt-2">
           <button
             onClick={handleGenerate}
-            disabled={isProcessing || !canAfford("SUMMARIZE")}
+            disabled={isProcessing || !canAfford("SUMMARIZE") || locked}
             className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold text-xs px-5 py-3 rounded-xl transition flex items-center space-x-2 shadow-md shadow-indigo-600/10"
           >
             <span>

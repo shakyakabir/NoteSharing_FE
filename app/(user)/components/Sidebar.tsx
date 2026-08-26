@@ -12,13 +12,16 @@ import {
   MessageSquare,
   ChevronDown,
   CreditCard,
+  Lock,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useUserAccess } from "@/hooks/access/useUserAccess";
 
 export default function Sidebar() {
   const pathname = usePathname();
   const [openTools, setOpenTools] = useState(false);
+  const { isPremium, isPremiumFeature } = useUserAccess();
 
   const menuItems = [
     { icon: <Home size={18} />, label: "Dashboard", link: "/dashboard" },
@@ -40,10 +43,10 @@ export default function Sidebar() {
   ];
 
   const aiTools = [
-    { label: "Summarizer", link: "/ai-tool/summarizer" },
-    { label: "Create Slide", link: "/ai-tool/create-slides" },
-    { label: "Report Generator", link: "/ai-tool/report" },
-    { label: "Flashcards", link: "/all-tools/flashcards" },
+    { label: "Summarizer", link: "/ai-tool/summarizer", feature: "SUMMARIZE" },
+    { label: "Create Slide", link: "/ai-tool/create-slides", feature: "PPT" },
+    { label: "Report Generator", link: "/ai-tool/report", feature: "REPORT" },
+    { label: "Flashcards", link: "/all-tools/flashcards", feature: null },
   ];
 
   // Auto-expand AI tools dropdown if active route is inside AI tools
@@ -124,6 +127,9 @@ export default function Sidebar() {
                 <div className="mt-1 space-y-0.5 pt-1">
                   {aiTools.map((tool) => {
                     const isSubActive = pathname === tool.link;
+                    const toolLocked = tool.feature
+                      ? isPremiumFeature(tool.feature) && !isPremium
+                      : false;
                     return (
                       <Link
                         key={tool.link}
@@ -135,7 +141,16 @@ export default function Sidebar() {
                         }`}
                       >
                         <span>{tool.label}</span>
-                        <span className="text-[10px] opacity-70">AI</span>
+                        {toolLocked ? (
+                          <span
+                            className="flex items-center text-[10px] opacity-70"
+                            title="Premium feature"
+                          >
+                            <Lock size={11} />
+                          </span>
+                        ) : (
+                          <span className="text-[10px] opacity-70">AI</span>
+                        )}
                       </Link>
                     );
                   })}
