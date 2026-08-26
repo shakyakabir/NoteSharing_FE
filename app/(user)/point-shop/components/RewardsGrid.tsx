@@ -1,7 +1,9 @@
 "use client";
-import React from "react";
-import { Sparkles, Clock, ShieldCheck } from "lucide-react";
+
+import React, { useState } from "react";
+import { Sparkles, Clock, ShieldCheck, Loader2 } from "lucide-react";
 import { useGetRewardsQuery, useRedeemRewardMutation } from "@/slices/Reward";
+import { toast } from "sonner";
 
 interface RewardItem {
   id: number | string;
@@ -14,7 +16,11 @@ interface RewardItem {
 
 export default function RewardsGrid() {
   const { data } = useGetRewardsQuery();
-  const [redeemReward, { isLoading }] = useRedeemRewardMutation();
+  const [redeemReward] = useRedeemRewardMutation();
+
+  // Track the specific item ID currently being redeemed
+  const [loadingId, setLoadingId] = useState<number | string | null>(null);
+
   const fallbackRewards: RewardItem[] = [
     {
       id: 1,
@@ -42,7 +48,8 @@ export default function RewardsGrid() {
         "A permanent decorative badge displayed next to your name in all groups.",
     },
   ];
-  const rewards = data?.length
+
+  const rewards: RewardItem[] = data?.length
     ? data.map((reward: any) => ({
         id: reward.id,
         icon: <Sparkles size={18} className="text-amber-600" />,
@@ -51,6 +58,25 @@ export default function RewardsGrid() {
         description: reward.description,
       }))
     : fallbackRewards;
+
+  const handleRedeem = async (reward: RewardItem) => {
+    setLoadingId(reward.id);
+    try {
+      const response = await redeemReward(reward.id).unwrap();
+      toast.success(
+        response?.message || `Successfully redeemed ${reward.title}!`,
+      );
+    } catch (error: any) {
+      const errorMessage =
+        error?.data?.message ||
+        error?.message ||
+        "You don't have enough points to redeem this reward.";
+
+      toast.error(errorMessage);
+    } finally {
+      setLoadingId(null);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -64,46 +90,57 @@ export default function RewardsGrid() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {rewards.map((reward) => (
-          <div
-            key={reward.id}
-            className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm flex flex-col justify-between relative hover:shadow-md transition-shadow"
-          >
-            {reward.isPopular && (
-              <span className="absolute top-4 right-4 bg-indigo-50 border border-indigo-100 text-indigo-600 font-extrabold text-[9px] tracking-widest uppercase px-2 py-0.5 rounded-full">
-                Popular
-              </span>
-            )}
+        {rewards.map((reward) => {
+          const isItemLoading = loadingId === reward.id;
 
-            <div className="space-y-4">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center">
-                {reward.icon}
-              </div>
-
-              <div className="space-y-1">
-                <h3 className="font-bold text-slate-800 text-sm leading-tight">
-                  {reward.title}
-                </h3>
-                <div className="flex items-center space-x-1 text-xs font-bold text-amber-600">
-                  <span>🪙</span>
-                  <span>{reward.cost}pts</span>
-                </div>
-              </div>
-
-              <p className="text-slate-400 text-xs leading-relaxed min-h-[40px]">
-                {reward.description}
-              </p>
-            </div>
-
-            <button
-              onClick={() => redeemReward(reward.id)}
-              disabled={isLoading || typeof reward.id === "number"}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-bold text-xs py-3 rounded-xl transition mt-6"
+          return (
+            <div
+              key={reward.id}
+              className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm flex flex-col justify-between relative hover:shadow-md transition-shadow"
             >
-              {typeof reward.id === "number" ? "Seed in backend" : "Redeem"}
-            </button>
-          </div>
-        ))}
+              {reward.isPopular && (
+                <span className="absolute top-4 right-4 bg-indigo-50 border border-indigo-100 text-indigo-600 font-extrabold text-[9px] tracking-widest uppercase px-2 py-0.5 rounded-full">
+                  Popular
+                </span>
+              )}
+
+              <div className="space-y-4">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center">
+                  {reward.icon}
+                </div>
+
+                <div className="space-y-1">
+                  <h3 className="font-bold text-slate-800 text-sm leading-tight">
+                    {reward.title}
+                  </h3>
+                  <div className="flex items-center space-x-1 text-xs font-bold text-amber-600">
+                    <span>🪙</span>
+                    <span>{reward.cost} pts</span>
+                  </div>
+                </div>
+
+                <p className="text-slate-400 text-xs leading-relaxed min-h-[40px]">
+                  {reward.description}
+                </p>
+              </div>
+
+              <button
+                onClick={() => handleRedeem(reward)}
+                disabled={loadingId !== null}
+                className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold text-xs py-3 rounded-xl transition mt-6 flex items-center justify-center space-x-2"
+              >
+                {isItemLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Redeeming...</span>
+                  </>
+                ) : (
+                  <span>Redeem Reward</span>
+                )}
+              </button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

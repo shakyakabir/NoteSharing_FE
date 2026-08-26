@@ -18,6 +18,9 @@ import Text from "@/app/components/ui/Text";
 import { Table } from "@/components/Table/Table";
 import { useGetNotesQuery, usePostNotesMutation } from "@/slices/Note";
 import CreateNote from "./components/modal/CreateNote";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
+import { toast } from "sonner";
 
 interface Note {
   id: string;
@@ -34,7 +37,7 @@ export default function NotePage() {
 
   const { data: notes = [], isLoading } = useGetNotesQuery();
   const [postNotes, { isLoading: isPosting }] = usePostNotesMutation();
-
+  const profile = useSelector((state: RootState) => state.profile.profile);
   const handleCreateNoteSubmit = async (formData: {
     title: string;
     content: string;
@@ -88,6 +91,14 @@ export default function NotePage() {
     }
   };
 
+  const handleCreateNote = () => {
+    if (profile?.subscriptionTier !== "PREMIUM" && notes.length > 8) {
+      setIsCreateNoteOpen(false);
+      toast.error("Normal user can only create 8 note");
+    } else {
+      setIsCreateNoteOpen(true);
+    }
+  };
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* --- PAGE HEADER --- */}
@@ -107,6 +118,7 @@ export default function NotePage() {
             color="subHeading"
             as="p"
             className="text-slate-500 mt-1"
+            weight={"bold"}
           >
             Organize, study, and manage all your notes in one place.
           </Text>
@@ -116,7 +128,7 @@ export default function NotePage() {
           <Button
             variant="primary"
             size="base"
-            onClick={() => setIsCreateNoteOpen(true)}
+            onClick={handleCreateNote}
             className="inline-flex items-center justify-center gap-2 shadow-xs hover:shadow-md transition-all"
           >
             <Plus size={18} />

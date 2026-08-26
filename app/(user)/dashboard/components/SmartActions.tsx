@@ -1,19 +1,23 @@
 import React from "react";
 import { FileText, HelpCircle, Network } from "lucide-react";
+import Link from "next/link";
 
 export default function SmartActions() {
   const actions = [
     {
       label: "Summarize",
-      icon: <FileText className="w-5 h-5 text-amber-600" />,
+      icon: <FileText className="w-5 h-5 text-primary" />,
+      link: "ai-tool/summarizer",
     },
     {
       label: "Generate Quiz",
-      icon: <HelpCircle className="w-5 h-5 text-amber-600" />,
+      icon: <HelpCircle className="w-5 h-5 text-primary" />,
+      link: "quiz",
     },
     {
-      label: "Concept Map",
-      icon: <Network className="w-5 h-5 text-amber-600" />,
+      label: "Generate Report",
+      icon: <Network className="w-5 h-5 text-primary" />,
+      link: "ai-tool/report",
     },
   ];
 
@@ -29,12 +33,14 @@ export default function SmartActions() {
             key={i}
             className="flex flex-col items-center justify-center p-5 rounded-xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50 transition-all gap-2 group"
           >
-            <div className="p-2 rounded-lg bg-white shadow-sm border border-slate-50 group-hover:scale-105 transition-transform">
-              {action.icon}
-            </div>
-            <span className="text-xs font-medium text-slate-600">
-              {action.label}
-            </span>
+            <Link href={action.link}>
+              <div className="p-2 rounded-lg bg-white shadow-sm border border-slate-50 group-hover:scale-105 transition-transform">
+                {action.icon}
+              </div>
+              <span className="text-xs font-medium text-slate-600">
+                {action.label}
+              </span>
+            </Link>
           </button>
         ))}
       </div>

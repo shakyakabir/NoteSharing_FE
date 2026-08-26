@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
@@ -42,6 +43,7 @@ const LoginForm = () => {
     e.preventDefault();
     try {
       const response = await postLogin(formData).unwrap();
+
       if (response.status === "200") {
         localStorage.setItem("email", response.data);
         const profileResponse = await getUserProfile().unwrap();
@@ -51,10 +53,23 @@ const LoginForm = () => {
           dispatch(setProfile(profileResponse));
         }
 
-        router.push("/dashboard");
+        if (profileResponse?.email === "admin@gmail.com") {
+          router.push("/admin/dashboard");
+        } else {
+          router.push("/dashboard");
+        }
+      } else if (response.status === "400") {
+        toast.error("Invalid credentials");
+      } else if (response.status === "403") {
+        toast.error("Please verify your email first");
+      } else if (response.status === "404") {
+        toast.error("User not found");
+      } else {
+        toast.error(response.message || "Login failed");
       }
     } catch (error) {
       console.error("Failed to login:", error);
+      toast.error("Something went wrong. Please try again.");
     }
   };
   return (

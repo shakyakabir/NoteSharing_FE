@@ -5,7 +5,7 @@ import { SourceMaterialSection } from "./components/SourceMaterialSection";
 import { ReferenceReportSection } from "./components/ReferenceReportSection";
 import { ConfigurationSummary } from "./components/ConfigurationSummary";
 import { useGetNotesQuery } from "@/slices/Note";
-import { useCreateReportMutation } from "@/slices/Ai";
+import { useCreateReportMutation, useGetReportsQuery } from "@/slices/Ai";
 import { toast } from "sonner";
 import AiCostNotice from "../../components/AiCostNotice";
 import RestrictedFeatureModal from "../../components/RestrictedFeatureModal";
@@ -15,6 +15,9 @@ import {
   getFeatureNotAvailable,
 } from "@/hooks/ai/useAiCredits";
 import { useUserAccess } from "@/hooks/access/useUserAccess";
+import Config from "@/config/Index";
+import { ReportSuccessModal } from "./components/ReportSuccessModal";
+import { ReportsListSection } from "./components/ReportsListSection";
 // import * as pdfjsLib from "pdfjs-dist";
 
 export default function GenerateReport() {
@@ -36,11 +39,12 @@ export default function GenerateReport() {
 
   // Output configuration
   const [detailLevel, setDetailLevel] = useState(2);
-
+  const [generatedReport, setGeneratedReport] = useState<any | null>(null);
   const [writingStyle, setWritingStyle] = useState("Professional / Academic");
   const handleRemoveNote = (noteToRemove: string) => {
     selectedNotes.filter((n: any) => n !== noteToRemove);
   };
+  const { data: reports, isLoading: reportsLoading } = useGetReportsQuery();
   const handleSelectNote = (note: any | null) => {
     setSelectedNote(note?.title ?? "");
     setNote(note ?? "");
@@ -109,12 +113,12 @@ export default function GenerateReport() {
   const handleReportGenerate = async () => {
     try {
       if (!prompt.trim()) {
-        alert("Please enter a prompt.");
+        toast.error("Please enter a prompt.");
         return;
       }
 
       if (!selectedNote && !uploadedFile) {
-        alert("Please select a note or upload a source document.");
+        toast.error("Please select a note or upload a source document.");
         return;
       }
 
@@ -123,102 +127,107 @@ export default function GenerateReport() {
         return;
       }
 
-      // Premium-only feature on a free plan: block early (the backend enforces the same gate).
       if (isPremiumFeature("REPORT") && !isPremium) {
         toast.error("This is a Premium feature. Upgrade to use it.");
         return;
       }
 
       let sourceContent = "";
-      let noteId = null;
+      let noteId: string | null = null;
       let title = "Generated Report";
 
-      /**
-       * Existing note selected
-       */
-      if (selectedNote) {
+      // =========================
+      // Selected note
+      // =========================
+      if (selectedNote && note) {
         noteId = note.id;
-
         title = note.title || "Generated Report";
 
-        sourceContent = htmlToText(
-          note.content || selectedNote.noteContent || "",
-        );
+        sourceContent = htmlToText(note.content || "");
       }
 
-      /**
-       * Local document selected
-       */
+      // =========================
+      // Uploaded source file
+      // =========================
       if (uploadedFile) {
-        sourceContent = await readFileAsText(uploadedFile);
-
         title = uploadedFile.name;
+
+        // Do NOT read PDF into sourceContent.
+        // Backend will extract the PDF from sourceFile.
+        sourceContent = "";
       }
 
-      /**
-       * Reference report
-       */
+      // =========================
+      // Reference content
+      // =========================
       let referenceContent = "";
-      console.log();
-      // if (referenceFiles) {
-      //   referenceContent = await readFileAsText(referenceFiles);
-      // }
 
       if (referenceFiles) {
         if (referenceFiles.type === "application/pdf") {
           referenceContent = await readPdfAsText(referenceFiles);
         } else if (
           referenceFiles.type === "text/plain" ||
-          referenceFiles.name.endsWith(".md")
+          referenceFiles.name.toLowerCase().endsWith(".md")
         ) {
           referenceContent = await readFileAsText(referenceFiles);
         } else {
-          alert("Reference file format is not currently supported.");
+          toast.error("Reference file format is not supported.");
           return;
         }
       }
 
-      /**
-       * API payload
-       */
-      const payload = {
-        noteId,
+      // =========================
+      // Multipart request
+      // =========================
+      const formData = new FormData();
 
-        sourceContent,
+      if (noteId) {
+        formData.append("noteId", noteId);
+      }
 
-        title,
+      formData.append("sourceContent", sourceContent);
+      formData.append("title", title);
 
-        reportType: "GENERAL",
+      // IMPORTANT
+      formData.append("reportType", "REPORT");
 
-        prompt,
+      formData.append("prompt", prompt);
+      formData.append("detailLevel", String(detailLevel));
+      formData.append("writingStyle", writingStyle);
+      formData.append("referenceContent", referenceContent);
 
-        detailLevel,
+      if (uploadedFile) {
+        formData.append("sourceFile", uploadedFile);
+      }
 
-        writingStyle,
+      if (referenceFiles) {
+        formData.append("referenceFile", referenceFiles);
+      }
 
-        referenceContent,
-      };
+      console.log("Creating report...");
+      console.log("title:", title);
+      console.log("reportType:", "REPORT");
+      console.log("sourceFile:", uploadedFile?.name);
+      console.log("noteId:", noteId);
 
-      console.log("Generate Report Payload:", payload);
-
-      const response = await createRepo(payload).unwrap();
+      const response = await createRepo(formData).unwrap();
 
       console.log("Report generated successfully:", response);
 
       refetch();
-      alert("Report generated successfully.");
+      toast.success("Report generated successfully.");
+      setGeneratedReport(response);
     } catch (error) {
-      console.log("Generate report failed:", error);
+      console.error("Generate report failed:", error);
 
       if (getInsufficientCredits(error) || getFeatureNotAvailable(error)) {
         setAccessError(error);
         return;
       }
 
-      alert("Failed to generate report.");
+      toast.error("Failed to generate report.");
     }
   };
-
   return (
     <div className="min-h-screen bg-gray-50/60 p-6 md:p-12 font-sans text-gray-900">
       <div className="max-w-6xl mx-auto space-y-8">
@@ -262,10 +271,20 @@ export default function GenerateReport() {
             />
           </div>
         </div>
+        <ReportsListSection
+          reports={reports}
+          isLoading={reportsLoading}
+          onSelectReport={(report) => setGeneratedReport(report)}
+        />
 
         <RestrictedFeatureModal
           error={accessError}
           onClose={() => setAccessError(null)}
+        />
+
+        <ReportSuccessModal
+          report={generatedReport}
+          onClose={() => setGeneratedReport(null)}
         />
       </div>
     </div>

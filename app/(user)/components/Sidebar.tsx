@@ -28,7 +28,7 @@ export default function Sidebar() {
     { icon: <Compass size={18} />, label: "Discover", link: "/discover" },
     { icon: <FileText size={18} />, label: "My Notes", link: "/note" },
     { icon: <Users size={18} />, label: "Groups", link: "/group" },
-    { icon: <HelpCircle size={18} />, label: "Quiz", link: "/quiz" },
+    // { icon: <HelpCircle size={18} />, label: "Quiz", link: "/quiz" },
     { icon: <HelpCircle size={18} />, label: "Ai Credit", link: "/ai-credit" },
     {
       icon: <MessageSquare size={18} />,
@@ -46,7 +46,7 @@ export default function Sidebar() {
     { label: "Summarizer", link: "/ai-tool/summarizer", feature: "SUMMARIZE" },
     { label: "Create Slide", link: "/ai-tool/create-slides", feature: "PPT" },
     { label: "Report Generator", link: "/ai-tool/report", feature: "REPORT" },
-    { label: "Flashcards", link: "/all-tools/flashcards", feature: null },
+    { label: "Quiz", link: "/quiz", feature: "QUIZ" },
   ];
 
   // Auto-expand AI tools dropdown if active route is inside AI tools

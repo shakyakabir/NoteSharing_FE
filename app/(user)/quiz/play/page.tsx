@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Config from "@/config/Index";
 import { QuizResultDTO } from "@/Type/QuizType";
 import { useGetQuizIDQuery, usePlayQuizMutation } from "@/slices/Quiz";
+import { useRouter } from "next/navigation";
 
 interface Question {
   question: string;
@@ -32,7 +33,7 @@ export default function QuizPlay() {
 
   const { data, isLoading, error } = useGetQuizIDQuery(quizId);
   console.log(quizId, "this is test");
-
+  const route = useRouter();
   useEffect(() => {
     if (data?.questionsJson) {
       try {
@@ -143,14 +144,17 @@ export default function QuizPlay() {
               Your answers have been submitted successfully.
             </p>
 
-            <button
+            {/* <button
               onClick={() => {
                 setAnswers({});
                 setQuizResult(null);
-              }}
+              }} */}
+
+            <button
+              onClick={() => route.push("/dashboard")}
               className="mt-6 px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl transition duration-200"
             >
-              Try Again
+              Back
             </button>
           </div>
         ) : (

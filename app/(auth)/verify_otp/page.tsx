@@ -2,7 +2,7 @@
 
 import Input from "@/app/components/ui/Input";
 import { useVerifyOtpMutation } from "@/slices/Auth";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 
 const VerifyOtpPage = () => {
@@ -28,14 +28,19 @@ const VerifyOtpPage = () => {
       inputRefs.current[index - 1]?.focus();
     }
   };
+  const route = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
   const [otpverify, { isLoading, error }] = useVerifyOtpMutation();
 
-  const onHandleSubmit = () => {
+  const onHandleSubmit = async () => {
     const enteredOtp = otp.join("");
     console.log("Entered OTP:", enteredOtp);
-    otpverify({ otp: enteredOtp, email: email });
+    const res = await otpverify({ otp: enteredOtp, email: email });
+    console.log(res);
+    if (res.status === "200") {
+      route.push("/login");
+    }
   };
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#F9FAFB] p-4 text-[#1F2937]">
@@ -105,7 +110,7 @@ const VerifyOtpPage = () => {
             onClick={onHandleSubmit}
             className="w-full py-3.5 px-4 bg-[#4F46E5] hover:bg-[#4338CA] active:scale-[0.99] text-white font-semibold rounded-xl shadow-md transition-all duration-200 mb-6 flex justify-center items-center"
           >
-            Verify Account
+            {isLoading ? "Verifying..." : "Verify Account"}
           </button>
 
           {/* Resend Code Section */}
@@ -120,7 +125,10 @@ const VerifyOtpPage = () => {
         </div>
 
         {/* Footer Navigation */}
-        <button className="mt-6 flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-[#4F46E5] transition-colors">
+        <button
+          onClick={() => route.push("/login")}
+          className="mt-6 flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-[#4F46E5] transition-colors"
+        >
           {/* <Arrow className="h-4 w-4" /> */}
           Back to login
         </button>

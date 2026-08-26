@@ -67,26 +67,44 @@ export const aiApi = createApi({
         // responseHandler: "text",
       }),
     }),
+    // createReport: builder.mutation({
+    //   query: (data) => ({
+    //     url: "/reports",
+    //     method: "POST",
+    //     body: {
+    //       userEmail: Config.defaultEmail,
+    //       ...data,
+    //     },
+    //   }),
+    //   invalidatesTags: ["Report"],
+    // }),
     createReport: builder.mutation({
-      query: (data) => ({
-        url: "/reports",
-        method: "POST",
-        body: {
-          userEmail: Config.defaultEmail,
-          ...data,
-        },
-      }),
+      query: (data) => {
+        if (data instanceof FormData) {
+          data.append("userEmail", Config.defaultEmail);
+          return {
+            url: "/reports",
+            method: "POST",
+            body: data,
+          };
+        }
+
+        return {
+          url: "/reports",
+          method: "POST",
+          body: {
+            userEmail: Config.defaultEmail,
+            ...data,
+          },
+        };
+      },
       invalidatesTags: ["Report"],
     }),
     summarize: builder.mutation({
-      query: (data) => ({
+      query: (formData: FormData) => ({
         url: "/reports/summarize",
         method: "POST",
-        body: {
-          userEmail: Config.defaultEmail,
-          reportType: "SUMMARY",
-          ...data,
-        },
+        body: formData, // do NOT spread, do NOT JSON.stringify
       }),
       invalidatesTags: ["Report"],
     }),

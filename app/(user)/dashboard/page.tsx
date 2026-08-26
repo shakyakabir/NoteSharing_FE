@@ -24,7 +24,7 @@ export default function Dashboard() {
       {/* Top Row: Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard
-          icon={<FileText className="w-5 h-5 text-amber-600" />}
+          icon={<FileText className="w-5 h-5 text-primary" />}
           iconBg="bg-amber-50"
           title="Total Notes"
           value={totalNotes.toString()}
@@ -32,26 +32,28 @@ export default function Dashboard() {
           badgeColor="text-emerald-600"
         />
         <StatCard
-          icon={<Eye className="w-5 h-5 text-sky-600" />}
+          icon={<Eye className="w-5 h-5 text-primary" />}
           iconBg="bg-sky-50"
           title="Quizz"
-          value={balance?.pointBalance.toString() || "0"}
+          value={balance?.quizCount.toString() || "0"}
           badge="+5.4k"
           badgeColor="text-sky-600"
         />
         <StatCard
-          icon={<DollarSign className="w-5 h-5 text-amber-700" />}
+          icon={<DollarSign className="w-5 h-5 text-primary" />}
           iconBg="bg-amber-100"
           title="Learning Streak"
           value={balance?.streakDays.toString() || "0"}
-          badge="Active Rewards"
+          badge="Active "
           badgeColor="text-slate-500 font-normal"
         />
         <StatCard
-          icon={<Cpu className="w-5 h-5 text-amber-800" />}
+          icon={<Cpu className="w-5 h-5 text-primary" />}
           iconBg="bg-amber-100"
           title="AI Credits"
-          value={credits ? `${credits.currentCredits}/${credits.maxCredits}` : "0"}
+          value={
+            credits ? `${credits.currentCredits}/${credits.maxCredits}` : "0"
+          }
           badge={credits ? `Refreshes in ${credits.daysUntilRefresh}d` : ""}
           badgeColor="text-slate-500 font-normal"
           progressBar={
@@ -73,9 +75,9 @@ export default function Dashboard() {
 
         {/* RIGHT COLUMN */}
         <div className="space-y-6">
-          <QuizPointsCard />
+          <QuizPointsCard point={balance?.pointBalance.toString()} />
           {/* <TopContributors /> */}
-          <EarningsGrowth />
+          {/* <EarningsGrowth /> */}
         </div>
       </div>
     </div>
