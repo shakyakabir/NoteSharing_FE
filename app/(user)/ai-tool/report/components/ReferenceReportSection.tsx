@@ -16,6 +16,7 @@ export const ReferenceReportSection: React.FC<ReferenceProps> = ({
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
+  console.log(profile, "profile");
   const handleToggle = () => {
     // If user is trying to enable it
     if (!enabled && profile?.subscriptionTier !== "PREMIUM") {
@@ -25,8 +26,9 @@ export const ReferenceReportSection: React.FC<ReferenceProps> = ({
 
     setEnabled((prev) => !prev);
   };
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileValue = e.target.files?.[0];
+    if (!fileValue) return;
     setFile(fileValue);
     referenceFile(fileValue);
   };

@@ -15,7 +15,6 @@ import {
 import { useParams } from "next/navigation";
 import { useGetPublicNotesIDQuery } from "@/slices/Note";
 
-
 export default function QuantumArticle() {
   const params = useParams();
 
@@ -36,7 +35,7 @@ export default function QuantumArticle() {
         <main className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-6 md:p-8">
           {/* Breadcrumbs */}
           <nav className="text-xs text-slate-500 flex items-center gap-1 mb-4">
-            {data.breadcrumbs?.map((crumb, idx) => (
+            {data.breadcrumbs?.map((crumb: any, idx: any) => (
               <React.Fragment key={idx}>
                 {idx > 0 && <span>&gt;</span>}
                 <span
@@ -151,12 +150,14 @@ export default function QuantumArticle() {
               Key Insights
             </h4>
             <ul className="space-y-3.5 text-xs text-slate-600">
-              {data.intelligenceEngine?.keyInsights?.map((insight, idx) => (
-                <li key={idx} className="flex items-start gap-2.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 mt-1.5 shrink-0" />
-                  <span>{insight}</span>
-                </li>
-              ))}
+              {data.intelligenceEngine?.keyInsights?.map(
+                (insight: any, idx: any) => (
+                  <li key={idx} className="flex items-start gap-2.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 mt-1.5 shrink-0" />
+                    <span>{insight}</span>
+                  </li>
+                ),
+              )}
             </ul>
           </div>
 

@@ -386,13 +386,13 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
         <Strikethrough size={18} />
       </button>
 
-      <button
-        onClick={() => editor.chain().focus().toggleHighlight().run()}
+      {/* <button
+        onClick={() => editor.chain().focus()?.toggleHighlight().run()}
         className={editor.isActive("highlight") ? activeClass : btnClass}
         title="Highlight"
       >
         <Highlighter size={18} />
-      </button>
+      </button> */}
 
       <div className="w-px h-6 bg-gray-200 mx-1" />
 

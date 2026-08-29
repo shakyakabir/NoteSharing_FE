@@ -389,8 +389,12 @@ const CreateSlide = () => {
         }
       }
 
-      const result = await createPresentation(formData).unwrap();
+      console.log(formData, "formDtdae");
 
+      for (const [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+      const result = await createPresentation(formData).unwrap();
       setPresentation(result);
       refetch();
 

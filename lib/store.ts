@@ -8,6 +8,7 @@ import { quizApi } from "@/slices/Quiz";
 import { memeberApi } from "@/slices/GroupMember";
 import { subscriptionApi } from "@/slices/Subscription";
 import { adminApi } from "@/slices/Admin";
+import { adsApi } from "@/slices/Ads";
 import profileReducer from "@/slices/profileSlice";
 
 export const store = configureStore({
@@ -21,6 +22,7 @@ export const store = configureStore({
     [rewardApi.reducerPath]: rewardApi.reducer,
     [subscriptionApi.reducerPath]: subscriptionApi.reducer,
     [adminApi.reducerPath]: adminApi.reducer,
+    [adsApi.reducerPath]: adsApi.reducer,
     profile: profileReducer,
   },
   middleware: (getDefaultMiddleware) =>
@@ -34,6 +36,7 @@ export const store = configureStore({
       rewardApi.middleware,
       subscriptionApi.middleware,
       adminApi.middleware,
+      adsApi.middleware,
     ),
 });
 

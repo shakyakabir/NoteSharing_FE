@@ -20,17 +20,15 @@ export interface FeatureUsage {
 
 export interface RevenuePoint {
   month: string;
-  mrr: number;
-  churn: number;
   subscription: number;
   ads: number;
 }
 
 export interface AdminAnalytics {
-  mrr: number;
-  churnRate: number;
+  subscriptionRevenue: number;
+  adsRevenue: number;
+  totalRevenue: number;
   aiCreditsConsumed: number;
-  avgProcessingTime: number;
   revenueBreakdown: RevenuePoint[];
   featureUsage: FeatureUsage[];
 }
@@ -130,6 +128,47 @@ export interface AdminRewardRequest {
   status: string;
 }
 
+// Admin ad endpoints return the Advertisement entity directly (like the other admin controllers).
+export interface AdminAd {
+  id: string;
+  title: string;
+  description: string | null;
+  imageUrl: string | null;
+  targetUrl: string | null;
+  placement: string;
+  cpmRate: number;
+  cpcRate: number;
+  impressions: number;
+  clicks: number;
+  status: string;
+  active: boolean;
+  createdAt: string;
+}
+
+export interface AdminAdRequest {
+  title: string;
+  description?: string;
+  imageUrl?: string;
+  targetUrl?: string;
+  placement: string;
+  cpmRate: number;
+  cpcRate: number;
+  status: string;
+}
+
+// One row of the admin eSewa payment history (mirrors PaymentHistoryDTO).
+export interface PaymentHistoryItem {
+  id: string;
+  userEmail: string;
+  planName: string | null;
+  amount: number;
+  paymentMethod: string;
+  status: string;
+  transactionUuid: string;
+  createdAt: string | null;
+  completedAt: string | null;
+}
+
 export interface UsersQueryArgs {
   search?: string;
   accountType?: string;
@@ -146,6 +185,7 @@ export const adminApi = createApi({
     "AdminPlans",
     "AdminFeatureCosts",
     "AdminRewards",
+    "AdminAds",
   ],
   endpoints: (builder) => ({
     // GET /api/admin/me - admin identity; 200 for admins, 401/403 otherwise (doubles as the gate).
@@ -158,7 +198,8 @@ export const adminApi = createApi({
       query: () => ({ url: "/admin/dashboard", method: "GET" }),
     }),
 
-    // GET /api/admin/analytics - real churn + per-feature usage; money metrics are 0 (no payments).
+    // GET /api/admin/analytics - real revenue (completed eSewa subscriptions + CPM/CPC ad earnings)
+    // plus AI credits consumed and per-feature usage.
     getAnalytics: builder.query<AdminAnalytics, string | void>({
       query: (range) => ({
         url: "/admin/analytics",
@@ -289,6 +330,45 @@ export const adminApi = createApi({
       query: (id) => ({ url: `/admin/rewards/${id}`, method: "DELETE" }),
       invalidatesTags: ["AdminRewards"],
     }),
+
+    // GET /api/admin/ads - every ad regardless of status.
+    getAds: builder.query<AdminAd[], void>({
+      query: () => ({ url: "/admin/ads", method: "GET" }),
+      providesTags: ["AdminAds"],
+    }),
+
+    createAd: builder.mutation<AdminAd, AdminAdRequest>({
+      query: (body) => ({ url: "/admin/ads", method: "POST", body }),
+      invalidatesTags: ["AdminAds"],
+    }),
+
+    updateAd: builder.mutation<AdminAd, { id: string; body: AdminAdRequest }>({
+      query: ({ id, body }) => ({
+        url: `/admin/ads/${id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["AdminAds"],
+    }),
+
+    deleteAd: builder.mutation<void, string>({
+      query: (id) => ({ url: `/admin/ads/${id}`, method: "DELETE" }),
+      invalidatesTags: ["AdminAds"],
+    }),
+
+    // GET /api/admin/payments - paginated eSewa payment history (all statuses, newest first).
+    getPayments: builder.query<
+      PageResponse<PaymentHistoryItem>,
+      { page?: number; size?: number } | void
+    >({
+      query: (args) => {
+        const a = args || {};
+        const params: Record<string, number> = {};
+        if (a.page !== undefined) params.page = a.page;
+        if (a.size !== undefined) params.size = a.size;
+        return { url: "/admin/payments", method: "GET", params };
+      },
+    }),
   }),
 });
 
@@ -310,4 +390,9 @@ export const {
   useCreateRewardMutation,
   useUpdateRewardMutation,
   useDeleteRewardMutation,
+  useGetAdsQuery,
+  useCreateAdMutation,
+  useUpdateAdMutation,
+  useDeleteAdMutation,
+  useGetPaymentsQuery,
 } = adminApi;

@@ -77,7 +77,7 @@ export default function TransactionHistory() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50 text-xs font-medium text-slate-700">
-              {transactions.map((tx) => (
+              {transactions.map((tx: any) => (
                 <tr
                   key={tx.id}
                   className="hover:bg-slate-50/50 transition-colors"

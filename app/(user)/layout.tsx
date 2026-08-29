@@ -97,7 +97,7 @@ export default function UserLayout({
             <Menu size={20} />
           </button>
           <div className="flex-1">
-            <Header user={user} />
+            <Header />
           </div>
         </header>
 

@@ -238,11 +238,17 @@ export default function Summarizer() {
         toast.error("This is a Premium feature.");
         return;
       }
+      // const email=localStorage.getItem("email")
+      const email = Config.defaultEmail;
 
+      if (!email) {
+        toast.error("User email not found. Please log in again.");
+        return;
+      }
       const formData = new FormData();
       formData.append("title", "Generated Summary");
       formData.append("reportType", "SUMMARY");
-      formData.append("userEmail", Config.defaultEmail);
+      formData.append("userEmail", email);
 
       if (textInput.trim()) {
         formData.append("sourceContent", textInput.trim());

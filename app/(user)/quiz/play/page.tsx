@@ -28,6 +28,9 @@ export default function QuizPlay() {
   const [quizId, setQuizId] = useState<string>("");
   useEffect(() => {
     const id = sessionStorage.getItem("quizPlayId");
+    if (!id) {
+      return;
+    }
     setQuizId(id);
   }, []);
 

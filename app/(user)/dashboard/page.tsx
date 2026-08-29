@@ -3,6 +3,7 @@ import React from "react";
 
 import { FileText, Eye, DollarSign, Cpu } from "lucide-react";
 import StatCard from "../components/Card/StatCard";
+import AdCard from "../components/Card/AdCard";
 import SmartActions from "./components/SmartActions";
 import RecentNotes from "./components/RecentNotes";
 import QuizPointsCard from "./components/QuizPointsCard";
@@ -76,6 +77,7 @@ export default function Dashboard() {
         {/* RIGHT COLUMN */}
         <div className="space-y-6">
           <QuizPointsCard point={balance?.pointBalance.toString()} />
+          <AdCard />
           {/* <TopContributors /> */}
           {/* <EarningsGrowth /> */}
         </div>

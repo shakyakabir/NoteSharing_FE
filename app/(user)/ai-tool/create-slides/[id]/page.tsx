@@ -105,6 +105,22 @@ const VISUAL_THEMES: Record<string, VisualTheme> = {
     connector: "bg-blue-100",
   },
 
+  peach: {
+    page: "bg-[#FFF5F0]",
+    surface: "bg-[#FFF5F0]",
+    card: "bg-[#FFE8DD]",
+    border: "border-[#F3C7B5]",
+    heading: "text-[#4A2C25]",
+    text: "text-[#6B453A]",
+    muted: "text-[#9A7164]",
+    accent: "text-[#E58B6F]",
+    accentBg: "bg-[#E58B6F]",
+    accentBorder: "border-[#F0B8A4]",
+    accentText: "text-[#C96F54]",
+    soft: "bg-[#FFEDE6]",
+    connector: "bg-[#F2C9BA]",
+  },
+
   // -------------------------------------------------------
   // Dune
   // -------------------------------------------------------
@@ -342,7 +358,7 @@ function SlideRenderer({
           )}
         </div>
 
-        <SlideFooter />
+        {/* <SlideFooter /> */}
       </div>
     );
   }
@@ -408,7 +424,7 @@ function SlideRenderer({
           </div>
         </div>
 
-        <SlideFooter />
+        {/* <SlideFooter /> */}
       </div>
     );
   }
@@ -432,7 +448,7 @@ function SlideRenderer({
           <blockquote
             className={`text-xl md:text-3xl font-serif ${theme.heading} leading-snug font-medium italic`}
           >
-            "{slide.content}"
+            {slide.content}
           </blockquote>
 
           {slide.subtitle && (
@@ -448,7 +464,7 @@ function SlideRenderer({
           )}
         </div>
 
-        <SlideFooter />
+        {/* <SlideFooter /> */}
       </div>
     );
   }
@@ -518,7 +534,7 @@ function SlideRenderer({
           </div>
         </div>
 
-        <SlideFooter />
+        {/* <SlideFooter /> */}
       </div>
     );
   }
@@ -585,7 +601,7 @@ function SlideRenderer({
         )}
       </div>
 
-      <SlideFooter />
+      {/* <SlideFooter /> */}
     </div>
   );
 }
@@ -625,6 +641,7 @@ export default function PresentationPage() {
   const visualTheme =
     (presentation as PresentationData | undefined)?.visualTheme || "academic";
 
+  console.log(visualTheme, "visualTheme");
   // -------------------------------------------------------
   // Navigation
   // -------------------------------------------------------

@@ -149,6 +149,7 @@ export default function DetailNote() {
 
   const getData = summaryData?.summaryContent;
   console.log(getData, "sd");
+  console.log(summaryData?.summaryContent);
   return (
     <div className="flex h-[calc(100vh-4rem)] bg-slate-100/60 overflow-hidden -m-4 md:-m-8">
       {/* ================= MAIN DOCUMENT AREA ================= */}

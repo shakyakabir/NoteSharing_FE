@@ -17,6 +17,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useUserAccess } from "@/hooks/access/useUserAccess";
+import Image from "next/image";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -57,16 +58,11 @@ export default function Sidebar() {
   }, [pathname]);
 
   return (
-    <aside className="w-64 border-r border-gray-200/80 bg-slate-50/50 backdrop-blur-sm h-screen fixed left-0 top-0 flex flex-col justify-between p-4 z-40 select-none">
+    <aside className="w-64 border-r border-gray-200/80 bg-slate-50/50 backdrop-blur-sm h-screen fixed left-0 top-0 flex flex-col justify-between p-4 pt-0 z-40 select-none">
       <div>
         {/* Logo Header */}
-        <div className="flex items-center space-x-2 px-3 py-3 mb-6">
-          <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
-            N
-          </div>
-          <span className="text-lg font-semibold tracking-tight text-slate-900">
-            NoteShare
-          </span>
+        <div>
+          <Image src="/logo.png" alt="Logo" width={120} height={12} />
         </div>
 
         {/* Navigation */}

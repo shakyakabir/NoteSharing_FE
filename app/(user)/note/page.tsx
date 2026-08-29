@@ -251,8 +251,8 @@ export default function NotePage() {
                   </button>
                 ),
               }))}
-              keyExtractor={(row) => row.id}
-              rowOnClick={(row) => handleDetailNote(row.id)}
+              keyExtractor={(row: any) => row?.id}
+              rowOnClick={(row) => handleDetailNote(row?.id)}
             />
           </div>
         </div>

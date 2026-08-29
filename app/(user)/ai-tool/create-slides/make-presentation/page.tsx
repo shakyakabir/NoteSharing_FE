@@ -7,6 +7,7 @@ import GenerationControls from "../components/GenerationControls";
 import RightSidebarPanels from "../components/RightSidebarPanels";
 import { useCreatePresentationMutation } from "@/slices/Ai";
 import Image from "next/image";
+import { toast } from "sonner";
 
 interface Slide {
   id: string;
@@ -89,14 +90,14 @@ export default function MakePresentationPage() {
           )}
         </div>
 
-        {presentation?.slides?.length > 0 && (
+        {(presentation?.slides?.length ?? 0) > 0 && (
           <div className="space-y-4">
             <h2 className="text-sm font-bold text-slate-800">
-              {presentation.title}
+              {presentation?.title}
             </h2>
             <h4>this is test</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {presentation.slides.map((slide) => (
+              {presentation?.slides.map((slide) => (
                 <div
                   key={slide.id}
                   className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm flex flex-col"
