@@ -10,13 +10,13 @@ import {
 import { useRouter } from "next/navigation";
 
 export interface NoteCardProps {
-  id: string;
+  id?: string;
   category?: string;
   title: string;
   content?: string;
   authorName?: string;
   authorImage?: string;
-  createdAt: string;
+  createdAt?: string;
   likes?: number;
   comments?: number;
   isBookmarked?: boolean;
@@ -85,11 +85,12 @@ export default function NoteCard({
               {authorName}
             </p>
             <p className="text-[11px] text-slate-400">
-              {new Date(createdAt).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
+              {createdAt &&
+                new Date(createdAt).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
             </p>
           </div>
         </div>

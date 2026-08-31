@@ -38,7 +38,7 @@ export const SourceMaterialSection: React.FC<SourceMaterialProps> = ({
     }
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       // If a file is selected, remove note selection
@@ -75,9 +75,9 @@ export const SourceMaterialSection: React.FC<SourceMaterialProps> = ({
           <option value="" className="text-gray-400">
             Select Note
           </option>
-          {selectedNotes.map((note, index) => (
-            <option key={note.id} value={note.id}>
-              {note.title || note}
+          {selectedNotes.map((note: any, index) => (
+            <option key={note?.id} value={note?.id}>
+              {note?.title || note}
             </option>
           ))}
         </select>

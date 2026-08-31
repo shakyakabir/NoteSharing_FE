@@ -9,14 +9,29 @@ export const aiApi = createApi({
   tagTypes: ["Presentation", "Report"],
   endpoints: (builder) => ({
     createPresentation: builder.mutation({
-      query: (data) => ({
-        url: "/presentations",
-        method: "POST",
-        body: {
-          userEmail: Config.defaultEmail,
-          ...data,
-        },
-      }),
+      query: (data: any) => {
+        const email = Config.defaultEmail;
+        if (!email) {
+          throw new Error("User email is required");
+        }
+        if (data instanceof FormData) {
+          data.append("userEmail", email);
+          return {
+            url: "/presentations",
+            method: "POST",
+            body: data, // do NOT spread, do NOT JSON.stringify
+          };
+        }
+
+        return {
+          url: "/presentations",
+          method: "POST",
+          body: {
+            userEmail: Config.defaultEmail,
+            ...data,
+          },
+        };
+      },
       invalidatesTags: ["Presentation"],
     }),
 
@@ -67,26 +82,48 @@ export const aiApi = createApi({
         // responseHandler: "text",
       }),
     }),
+    // createReport: builder.mutation({
+    //   query: (data) => ({
+    //     url: "/reports",
+    //     method: "POST",
+    //     body: {
+    //       userEmail: Config.defaultEmail,
+    //       ...data,
+    //     },
+    //   }),
+    //   invalidatesTags: ["Report"],
+    // }),
     createReport: builder.mutation({
-      query: (data) => ({
-        url: "/reports",
-        method: "POST",
-        body: {
-          userEmail: Config.defaultEmail,
-          ...data,
-        },
-      }),
+      query: (data) => {
+        const email = Config.defaultEmail;
+        if (!email) {
+          throw new Error("User email is required");
+        }
+        if (data instanceof FormData) {
+          data.append("userEmail", email);
+          return {
+            url: "/reports",
+            method: "POST",
+            body: data,
+          };
+        }
+
+        return {
+          url: "/reports",
+          method: "POST",
+          body: {
+            userEmail: Config.defaultEmail,
+            ...data,
+          },
+        };
+      },
       invalidatesTags: ["Report"],
     }),
     summarize: builder.mutation({
-      query: (data) => ({
+      query: (formData: FormData) => ({
         url: "/reports/summarize",
         method: "POST",
-        body: {
-          userEmail: Config.defaultEmail,
-          reportType: "SUMMARY",
-          ...data,
-        },
+        body: formData, // do NOT spread, do NOT JSON.stringify
       }),
       invalidatesTags: ["Report"],
     }),

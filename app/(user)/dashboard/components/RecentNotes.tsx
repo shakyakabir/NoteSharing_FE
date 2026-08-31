@@ -2,7 +2,7 @@ import React from "react";
 import { FileCode, Layers, Users } from "lucide-react";
 interface Note {
   title: string;
-  createAt: string;
+  createdAt: string;
   // views: string;
   // tags: { name: string; color: string }[];
   icon: React.ReactNode;

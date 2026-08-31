@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
-import { useAiCredits } from "@/hooks/ai/useAiCredits";
+import { Sparkles, Lock } from "lucide-react";
+import { useUserAccess } from "@/hooks/access/useUserAccess";
 
 interface AiCostNoticeProps {
   /** Backend AiFeature key, e.g. "SUMMARIZE" | "REPORT" | "QUIZ" | "PPT". */
@@ -11,20 +11,43 @@ interface AiCostNoticeProps {
 
 /**
  * Inline "this action uses N credits · Balance: X/Y" indicator for AI tool pages. The cost and
- * balance are both read from the backend (never hard-coded). When the balance is too low it turns
- * into an insufficient-credits warning with an "Upgrade to Premium" CTA.
+ * balance are both read from the backend (never hard-coded). If the feature is premium-only and the
+ * user isn't on Premium it shows a locked notice; if the balance is too low it turns into an
+ * insufficient-credits warning. Both link to the existing /subscription page.
  */
 export default function AiCostNotice({
   feature,
   className = "",
 }: AiCostNoticeProps) {
-  const { credits, costs, costOf, canAfford } = useAiCredits();
+  const { credits, costs, costOf, hasCredits, isPremium, isPremiumFeature } =
+    useUserAccess();
 
   // Costs not loaded yet - render nothing rather than a misleading "0 credits".
   if (!costs) return null;
 
   const cost = costOf(feature);
-  const enough = canAfford(feature);
+
+  // Premium-only feature on a free plan: lock it (the backend enforces the same gate on request).
+  if (isPremiumFeature(feature) && !isPremium) {
+    return (
+      <div
+        className={`flex flex-col sm:flex-row sm:items-center gap-2 bg-indigo-50 border border-indigo-100 px-3 py-2 rounded-xl text-xs font-semibold text-indigo-700 ${className}`}
+      >
+        <span className="flex items-center gap-1.5">
+          <Lock size={14} />
+          Premium feature - available on the Premium plan.
+        </span>
+        <Link
+          href="/subscription"
+          className="underline font-bold hover:text-indigo-900"
+        >
+          Upgrade to Premium
+        </Link>
+      </div>
+    );
+  }
+
+  const enough = hasCredits(feature);
 
   if (!enough) {
     return (

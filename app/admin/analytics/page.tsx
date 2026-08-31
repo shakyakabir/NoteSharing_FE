@@ -2,18 +2,17 @@
 
 import { useState } from "react";
 import {
-  TrendingUp,
-  TrendingDown,
+  DollarSign,
+  Megaphone,
+  Wallet,
   Cpu,
-  Clock,
   Calendar,
   Download,
   Info,
 } from "lucide-react";
 import {
-  ComposedChart,
-  Bar,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -35,6 +34,11 @@ const PIE_COLORS = [
   "#F43F5E",
 ];
 
+// Revenue values are real money (completed eSewa subscriptions + CPM/CPC ad earnings); render as
+// currency with at most 2 decimals so accumulated float ad revenue doesn't show a long tail.
+const money = (n?: number) =>
+  `$${(n ?? 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+
 export default function AnalyticsDashboard() {
   const [timeframe, setTimeframe] = useState<"7D" | "30D" | "Q3" | "YTD">("Q3");
 
@@ -48,17 +52,12 @@ export default function AnalyticsDashboard() {
     color: PIE_COLORS[i % PIE_COLORS.length],
   }));
 
-  // No payment system yet -> MRR is $0; processing time isn't instrumented -> shown as "—".
-  const mrr = isLoading ? "…" : `$${(data?.mrr ?? 0).toLocaleString()}`;
-  const churn = isLoading ? "…" : `${data?.churnRate ?? 0}%`;
+  const subscriptionRevenue = isLoading ? "…" : money(data?.subscriptionRevenue);
+  const adsRevenue = isLoading ? "…" : money(data?.adsRevenue);
+  const totalRevenue = isLoading ? "…" : money(data?.totalRevenue);
   const creditsConsumed = isLoading
     ? "…"
     : (data?.aiCreditsConsumed ?? 0).toLocaleString();
-  const avgTime = isLoading
-    ? "…"
-    : data?.avgProcessingTime
-      ? `${data.avgProcessingTime}s`
-      : "—";
 
   return (
     <div className="min-h-screen bg-[#F8F9FD] p-8 text-gray-800 font-sans">
@@ -101,30 +100,45 @@ export default function AnalyticsDashboard() {
           {/* Card 1 */}
           <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm space-y-3">
             <div className="flex items-center justify-between text-xs font-bold text-gray-400 tracking-wider">
-              <span>MONTHLY RECURRING REVENUE</span>
+              <span>SUBSCRIPTION REVENUE</span>
               <div className="w-6 h-6 rounded-md bg-emerald-50 flex items-center justify-center text-emerald-500">
-                <TrendingUp className="w-3.5 h-3.5" />
+                <DollarSign className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-2xl font-bold text-gray-900">{mrr}</div>
+            <div className="text-2xl font-bold text-gray-900">
+              {subscriptionRevenue}
+            </div>
           </div>
 
           {/* Card 2 */}
           <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm space-y-3">
             <div className="flex items-center justify-between text-xs font-bold text-gray-400 tracking-wider">
-              <span>USER CHURN RATE</span>
-              <div className="w-6 h-6 rounded-md bg-rose-50 flex items-center justify-center text-rose-500">
-                <TrendingDown className="w-3.5 h-3.5" />
+              <span>ADS REVENUE</span>
+              <div className="w-6 h-6 rounded-md bg-amber-50 flex items-center justify-center text-amber-500">
+                <Megaphone className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-2xl font-bold text-gray-900">{churn}</div>
+            <div className="text-2xl font-bold text-gray-900">{adsRevenue}</div>
           </div>
 
           {/* Card 3 */}
           <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm space-y-3">
             <div className="flex items-center justify-between text-xs font-bold text-gray-400 tracking-wider">
-              <span>AI CREDITS CONSUMED</span>
+              <span>TOTAL REVENUE</span>
               <div className="w-6 h-6 rounded-md bg-indigo-50 flex items-center justify-center text-indigo-500">
+                <Wallet className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="text-2xl font-bold text-gray-900">
+              {totalRevenue}
+            </div>
+          </div>
+
+          {/* Card 4 */}
+          <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm space-y-3">
+            <div className="flex items-center justify-between text-xs font-bold text-gray-400 tracking-wider">
+              <span>AI CREDITS CONSUMED</span>
+              <div className="w-6 h-6 rounded-md bg-sky-50 flex items-center justify-center text-sky-500">
                 <Cpu className="w-3.5 h-3.5" />
               </div>
             </div>
@@ -132,26 +146,15 @@ export default function AnalyticsDashboard() {
               {creditsConsumed}
             </div>
           </div>
-
-          {/* Card 4 */}
-          <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm space-y-3">
-            <div className="flex items-center justify-between text-xs font-bold text-gray-400 tracking-wider">
-              <span>AVG PROCESSING TIME</span>
-              <div className="w-6 h-6 rounded-md bg-amber-50 flex items-center justify-center text-amber-500">
-                <Clock className="w-3.5 h-3.5" />
-              </div>
-            </div>
-            <div className="text-2xl font-bold text-gray-900">{avgTime}</div>
-          </div>
         </div>
 
         {/* Main Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Revenue Growth & Churn Projection (2 cols) */}
+          {/* Revenue Growth (2 cols) */}
           <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-bold text-gray-900">
-                Revenue Growth & Churn Projection
+                Revenue Growth
               </h2>
               <button className="flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition">
                 Export <Download className="w-3.5 h-3.5" />
@@ -162,15 +165,15 @@ export default function AnalyticsDashboard() {
             <div className="flex items-center justify-end gap-6 mb-4 text-xs font-medium text-gray-500">
               <div className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-[#6366F1]" />
-                MRR ($)
+                Subscription ($)
               </div>
               <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full border-2 border-rose-500 bg-white" />
-                Churn Rate (%)
+                <span className="w-3 h-3 rounded-full bg-[#F59E0B]" />
+                Ad Revenue ($)
               </div>
             </div>
 
-            {/* Composed Chart */}
+            {/* Area Chart */}
             <div className="h-72 w-full">
               {revenueBreakdown.length === 0 ? (
                 <div className="h-full w-full flex items-center justify-center text-sm text-gray-400">
@@ -178,10 +181,20 @@ export default function AnalyticsDashboard() {
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart
+                  <AreaChart
                     data={revenueBreakdown}
                     margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
                   >
+                    <defs>
+                      <linearGradient id="colorSub" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#6366F1" stopOpacity={0.2} />
+                        <stop offset="95%" stopColor="#6366F1" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="colorAds" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.2} />
+                        <stop offset="95%" stopColor="#F59E0B" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
                     <CartesianGrid
                       strokeDasharray="3 3"
                       vertical={false}
@@ -193,24 +206,18 @@ export default function AnalyticsDashboard() {
                       tickLine={false}
                       tick={{ fill: "#94A3B8", fontSize: 12 }}
                     />
-                    {/* Left Y-Axis for MRR */}
                     <YAxis
-                      yAxisId="left"
                       axisLine={false}
                       tickLine={false}
                       tick={{ fill: "#94A3B8", fontSize: 12 }}
-                      tickFormatter={(val) => `$${val / 1000}k`}
-                    />
-                    {/* Right Y-Axis for Churn */}
-                    <YAxis
-                      yAxisId="right"
-                      orientation="right"
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fill: "#94A3B8", fontSize: 12 }}
-                      tickFormatter={(val) => `${val}%`}
+                      tickFormatter={(val) =>
+                        val >= 1000 ? `$${val / 1000}k` : `$${val}`
+                      }
                     />
                     <Tooltip
+                      formatter={(value) =>
+                        `$${Number(value).toLocaleString()}`
+                      }
                       contentStyle={{
                         backgroundColor: "#fff",
                         borderRadius: "8px",
@@ -218,28 +225,23 @@ export default function AnalyticsDashboard() {
                         boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                       }}
                     />
-                    <Bar
-                      yAxisId="left"
-                      dataKey="mrr"
-                      fill="#6366F1"
-                      radius={[4, 4, 0, 0]}
-                      barSize={24}
-                    />
-                    <Line
-                      yAxisId="right"
+                    <Area
                       type="monotone"
-                      dataKey="churn"
-                      stroke="#EF4444"
-                      strokeWidth={2}
-                      dot={{
-                        fill: "#FFFFFF",
-                        stroke: "#EF4444",
-                        strokeWidth: 2,
-                        r: 4,
-                      }}
-                      activeDot={{ r: 6 }}
+                      dataKey="subscription"
+                      stroke="#6366F1"
+                      strokeWidth={2.5}
+                      fillOpacity={1}
+                      fill="url(#colorSub)"
                     />
-                  </ComposedChart>
+                    <Area
+                      type="monotone"
+                      dataKey="ads"
+                      stroke="#F59E0B"
+                      strokeWidth={2}
+                      fillOpacity={1}
+                      fill="url(#colorAds)"
+                    />
+                  </AreaChart>
                 </ResponsiveContainer>
               )}
             </div>

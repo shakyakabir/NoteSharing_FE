@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 const navItems = [
   {
@@ -69,14 +70,13 @@ export const Sidebar = () => {
   return (
     <aside className="w-64 border-r border-slate-100 bg-white min-h-screen p-6 flex flex-col justify-between">
       <div>
-        <div className="mb-8 px-2">
-          <h1 className="text-xl font-bold text-indigo-900 tracking-tight">
-            NoteAura Admin
-          </h1>
-
-          <p className="text-xs text-slate-400 font-medium mt-0.5">
-            Institutional Suite
-          </p>
+        <div className="flex items-center space-x-2 px-3 py-3 mb-6">
+          <div className="h-8 w-8 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-sm">
+            <Image src="/logo.png" alt="Logo" width={500} height={29} />
+          </div>
+          <span className="text-lg font-semibold tracking-tight text-slate-900">
+            NoteHive
+          </span>
         </div>
 
         <nav className="space-y-1">

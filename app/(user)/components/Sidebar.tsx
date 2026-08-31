@@ -12,20 +12,24 @@ import {
   MessageSquare,
   ChevronDown,
   CreditCard,
+  Lock,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useUserAccess } from "@/hooks/access/useUserAccess";
+import Image from "next/image";
 
 export default function Sidebar() {
   const pathname = usePathname();
   const [openTools, setOpenTools] = useState(false);
+  const { isPremium, isPremiumFeature } = useUserAccess();
 
   const menuItems = [
     { icon: <Home size={18} />, label: "Dashboard", link: "/dashboard" },
     { icon: <Compass size={18} />, label: "Discover", link: "/discover" },
     { icon: <FileText size={18} />, label: "My Notes", link: "/note" },
     { icon: <Users size={18} />, label: "Groups", link: "/group" },
-    { icon: <HelpCircle size={18} />, label: "Quiz", link: "/quiz" },
+    // { icon: <HelpCircle size={18} />, label: "Quiz", link: "/quiz" },
     { icon: <HelpCircle size={18} />, label: "Ai Credit", link: "/ai-credit" },
     {
       icon: <MessageSquare size={18} />,
@@ -40,10 +44,10 @@ export default function Sidebar() {
   ];
 
   const aiTools = [
-    { label: "Summarizer", link: "/ai-tool/summarizer" },
-    { label: "Create Slide", link: "/ai-tool/create-slides" },
-    { label: "Report Generator", link: "/ai-tool/report" },
-    { label: "Flashcards", link: "/all-tools/flashcards" },
+    { label: "Summarizer", link: "/ai-tool/summarizer", feature: "SUMMARIZE" },
+    { label: "Create Slide", link: "/ai-tool/create-slides", feature: "PPT" },
+    { label: "Report Generator", link: "/ai-tool/report", feature: "REPORT" },
+    { label: "Quiz", link: "/quiz", feature: "QUIZ" },
   ];
 
   // Auto-expand AI tools dropdown if active route is inside AI tools
@@ -54,16 +58,11 @@ export default function Sidebar() {
   }, [pathname]);
 
   return (
-    <aside className="w-64 border-r border-gray-200/80 bg-slate-50/50 backdrop-blur-sm h-screen fixed left-0 top-0 flex flex-col justify-between p-4 z-40 select-none">
+    <aside className="w-64 border-r border-gray-200/80 bg-slate-50/50 backdrop-blur-sm h-screen fixed left-0 top-0 flex flex-col justify-between p-4 pt-0 z-40 select-none">
       <div>
         {/* Logo Header */}
-        <div className="flex items-center space-x-2 px-3 py-3 mb-6">
-          <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
-            N
-          </div>
-          <span className="text-lg font-semibold tracking-tight text-slate-900">
-            NoteShare
-          </span>
+        <div>
+          <Image src="/logo.png" alt="Logo" width={120} height={12} />
         </div>
 
         {/* Navigation */}
@@ -124,6 +123,9 @@ export default function Sidebar() {
                 <div className="mt-1 space-y-0.5 pt-1">
                   {aiTools.map((tool) => {
                     const isSubActive = pathname === tool.link;
+                    const toolLocked = tool.feature
+                      ? isPremiumFeature(tool.feature) && !isPremium
+                      : false;
                     return (
                       <Link
                         key={tool.link}
@@ -135,7 +137,16 @@ export default function Sidebar() {
                         }`}
                       >
                         <span>{tool.label}</span>
-                        <span className="text-[10px] opacity-70">AI</span>
+                        {toolLocked ? (
+                          <span
+                            className="flex items-center text-[10px] opacity-70"
+                            title="Premium feature"
+                          >
+                            <Lock size={11} />
+                          </span>
+                        ) : (
+                          <span className="text-[10px] opacity-70">AI</span>
+                        )}
                       </Link>
                     );
                   })}

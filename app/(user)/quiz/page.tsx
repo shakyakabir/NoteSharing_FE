@@ -159,9 +159,8 @@ export const QuizSetupForm: React.FC<QuizSetupFormProps> = ({
       }).unwrap();
       console.log(quiz, "quizj");
 
-      onQuizCreated?.(quiz.id);
-
       if (quiz) {
+        sessionStorage.setItem("quizPlayId", quiz.id);
         router.push("quiz/play");
       }
     } catch (err) {

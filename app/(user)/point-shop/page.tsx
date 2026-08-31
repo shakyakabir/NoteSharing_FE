@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import BalanceBanner from "./components/BalanceBanner";
 import RewardsGrid from "./components/RewardsGrid";
@@ -6,7 +7,7 @@ import TransactionHistory from "./components/TransactionHistory";
 
 export default function RewardsDashboard() {
   return (
-    <div className="min-h-screen bg-[#F9FAFD] w-full  space-y-8 relative pb-24">
+    <div className="min-h-screen bg-[#F9FAFD] w-full space-y-8 relative pb-24">
       {/* Balance Top Header */}
       <BalanceBanner />
 

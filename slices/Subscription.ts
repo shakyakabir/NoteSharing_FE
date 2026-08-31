@@ -47,6 +47,8 @@ export interface CreditTransaction {
 
 export type FeatureCosts = Record<string, number>;
 
+export type FeatureAccess = Record<string, boolean>;
+
 export interface PlanFeature {
   text: string;
   included: boolean;
@@ -103,6 +105,14 @@ export const subscriptionApi = createApi({
       }),
     }),
 
+    // GET /api/ai/feature-access - per-feature premium-only flags, so the UI can lock premium tools.
+    getFeatureAccess: builder.query<FeatureAccess, void>({
+      query: () => ({
+        url: "/ai/feature-access",
+        method: "GET",
+      }),
+    }),
+
     // GET /api/subscription - plan + subscription window + premium upgrade info.
     getSubscription: builder.query<Subscription, void>({
       query: () => ({
@@ -155,6 +165,7 @@ export const subscriptionApi = createApi({
 export const {
   useGetCreditsQuery,
   useGetFeatureCostsQuery,
+  useGetFeatureAccessQuery,
   useGetSubscriptionQuery,
   useGetPlansQuery,
   useCreateSubscriptionCheckoutMutation,

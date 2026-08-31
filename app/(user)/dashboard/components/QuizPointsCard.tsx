@@ -1,7 +1,9 @@
 import React from "react";
 import { Award } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-export default function QuizPointsCard() {
+export default function QuizPointsCard({ point }: { point: string }) {
+  const route = useRouter();
   return (
     <div className="bg-[#232936] text-white p-6 rounded-2xl shadow-sm relative overflow-hidden flex flex-col justify-between min-h-[220px]">
       {/* Background Star Badge Effect */}
@@ -16,7 +18,7 @@ export default function QuizPointsCard() {
             Quiz Points
           </h3>
         </div>
-        <h2 className="text-3xl font-bold tracking-tight mb-2">12,450 XP</h2>
+        <h2 className="text-3xl font-bold tracking-tight mb-2">{point} XP</h2>
         <p className="text-xs text-slate-400 max-w-[200px] leading-relaxed">
           You're in the{" "}
           <span className="text-amber-400 font-medium">Top 5%</span> of NoteHive
@@ -24,7 +26,10 @@ export default function QuizPointsCard() {
         </p>
       </div>
 
-      <button className="w-full bg-primary hover:bg-primary text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition-colors mt-4 relative z-10">
+      <button
+        onClick={() => route.push("point-shop")}
+        className="w-full bg-primary hover:bg-primary text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition-colors mt-4 relative z-10"
+      >
         Redeem Rewards
       </button>
     </div>

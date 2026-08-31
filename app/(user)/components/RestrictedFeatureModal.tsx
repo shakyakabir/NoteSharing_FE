@@ -53,7 +53,7 @@ export default function RestrictedFeatureModal({
           </h3>
           <p className="text-xs text-slate-500 leading-relaxed">
             {premiumOnly
-              ? "This AI tool is available on the Premium plan. Unlock Premium with the points you have already earned to start using it."
+              ? "This AI tool is available on the Premium plan. Upgrade to Premium to start using it."
               : `This action needs ${insufficient?.requiredCredits} credits, but you have ${insufficient?.availableCredits}. Your credits refresh automatically, or unlock a larger allowance with Premium.`}
           </p>
         </div>

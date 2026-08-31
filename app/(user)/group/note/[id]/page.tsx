@@ -36,6 +36,7 @@ import {
   useGetGroupNotesQuery,
   usePostGroupNotesMutation,
 } from "@/slices/Note";
+import { useCreateSummaryMutation, useGetSummaryQuery } from "@/slices/Ai";
 
 export default function GroupNote() {
   const params = useParams();
@@ -45,6 +46,8 @@ export default function GroupNote() {
   const { data: note, isLoading } = useGetGroupNotesQuery(noteId, {
     skip: !noteId,
   });
+  const groupNoteId = note?.id;
+  console.log(groupNoteId, "noteid");
   const [postGroupNotes, { isLoading: isUpdating }] =
     usePostGroupNotesMutation();
 
@@ -52,7 +55,9 @@ export default function GroupNote() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [chatMessage, setChatMessage] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
+  const [createSummary, { isLoading: isSummary }] = useCreateSummaryMutation();
+  const { data: summaryData, isLoading: isSummaryData } =
+    useGetSummaryQuery(groupNoteId);
   // TipTap Editor Initialization
   const editor = useEditor({
     extensions: [
@@ -143,6 +148,12 @@ export default function GroupNote() {
   const isPublic =
     note?.visibility?.toLowerCase() === "public" || !note?.visibility;
 
+  const handleSummary = async () => {
+    const response = await createSummary(groupNoteId).unwrap();
+    console.log(response, "summaryresponse");
+  };
+
+  const getData = summaryData?.summaryContent;
   return (
     <div className="flex h-[calc(100vh-4rem)] bg-slate-100/60 overflow-hidden -m-4 md:-m-8">
       {/* ================= MAIN DOCUMENT AREA ================= */}
@@ -279,7 +290,10 @@ export default function GroupNote() {
             </span>
 
             {/* Action 1: Summarize */}
-            <button className="w-full text-left p-3 rounded-xl bg-slate-50/80 hover:bg-indigo-50/50 border border-slate-200/60 hover:border-indigo-200 transition-all group">
+            <button
+              onClick={handleSummary}
+              className="w-full text-left p-3 rounded-xl bg-slate-50/80 hover:bg-indigo-50/50 border border-slate-200/60 hover:border-indigo-200 transition-all group"
+            >
               <div className="flex items-start gap-3">
                 <div className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 group-hover:border-indigo-200 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-2xs">
                   <FileText size={15} />
@@ -294,6 +308,11 @@ export default function GroupNote() {
                 </div>
               </div>
             </button>
+            {getData && (
+              <div className="p-3 bg-indigo-50/50 border border-indigo-100 rounded-xl text-xs text-slate-700 leading-relaxed transition-all">
+                <p className="whitespace-pre-wrap">{getData}</p>
+              </div>
+            )}
 
             {/* Action 2: Generate Quiz */}
             <button className="w-full text-left p-3 rounded-xl bg-slate-50/80 hover:bg-indigo-50/50 border border-slate-200/60 hover:border-indigo-200 transition-all group">

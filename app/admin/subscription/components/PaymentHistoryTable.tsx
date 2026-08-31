@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Clock, XCircle } from "lucide-react";
 import { PaymentHistoryItem } from "../type/subscription";
 
 interface Props {
@@ -43,6 +43,18 @@ export const PaymentHistoryTable: React.FC<Props> = ({ history }) => {
                     <span className="inline-flex items-center gap-1 font-bold text-[11px] text-emerald-600">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       PAID
+                    </span>
+                  )}
+                  {item.status === "PENDING" && (
+                    <span className="inline-flex items-center gap-1 font-bold text-[11px] text-amber-600">
+                      <Clock className="w-3.5 h-3.5" />
+                      PENDING
+                    </span>
+                  )}
+                  {item.status === "FAILED" && (
+                    <span className="inline-flex items-center gap-1 font-bold text-[11px] text-rose-600">
+                      <XCircle className="w-3.5 h-3.5" />
+                      FAILED
                     </span>
                   )}
                 </td>
