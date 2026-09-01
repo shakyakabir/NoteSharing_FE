@@ -30,6 +30,7 @@ export default function Header() {
   const handleLogout = () => {
     setMenuOpen(false);
     window.location.href = "http://localhost:8080/logout";
+    localStorage.removeItem("email");
     router.push("/login");
   };
 

@@ -1,37 +1,7 @@
 "use client";
 
-import React, { useMemo } from "react";
-import {
-  ArrowLeft,
-  Download,
-  FileText,
-  Clock,
-  BookOpen,
-  ChevronRight,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useGetReportByIdQuery } from "@/slices/Ai";
 
-type Report = {
-  id: string;
-  userEmail: string;
-  sourceContent: string;
-  content: string;
-  title: string;
-  reportType: string;
-  prompt: string | null;
-  detailLevel: number | null;
-  writingStyle: string | null;
-  referenceContent: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
-type Props = {
-  report?: Report;
-};
-
-export default function ReportPage({ report }: Props) {
+export default function ReportPage() {
   return (
     <>
       <h1>Repor</h1>

@@ -37,7 +37,7 @@ const PIE_COLORS = [
 // Revenue values are real money (completed eSewa subscriptions + CPM/CPC ad earnings); render as
 // currency with at most 2 decimals so accumulated float ad revenue doesn't show a long tail.
 const money = (n?: number) =>
-  `$${(n ?? 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+  `Rs.${(n ?? 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
 
 export default function AnalyticsDashboard() {
   const [timeframe, setTimeframe] = useState<"7D" | "30D" | "Q3" | "YTD">("Q3");
@@ -52,7 +52,9 @@ export default function AnalyticsDashboard() {
     color: PIE_COLORS[i % PIE_COLORS.length],
   }));
 
-  const subscriptionRevenue = isLoading ? "…" : money(data?.subscriptionRevenue);
+  const subscriptionRevenue = isLoading
+    ? "…"
+    : money(data?.subscriptionRevenue);
   const adsRevenue = isLoading ? "…" : money(data?.adsRevenue);
   const totalRevenue = isLoading ? "…" : money(data?.totalRevenue);
   const creditsConsumed = isLoading
@@ -187,12 +189,28 @@ export default function AnalyticsDashboard() {
                   >
                     <defs>
                       <linearGradient id="colorSub" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#6366F1" stopOpacity={0.2} />
-                        <stop offset="95%" stopColor="#6366F1" stopOpacity={0} />
+                        <stop
+                          offset="5%"
+                          stopColor="#6366F1"
+                          stopOpacity={0.2}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#6366F1"
+                          stopOpacity={0}
+                        />
                       </linearGradient>
                       <linearGradient id="colorAds" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.2} />
-                        <stop offset="95%" stopColor="#F59E0B" stopOpacity={0} />
+                        <stop
+                          offset="5%"
+                          stopColor="#F59E0B"
+                          stopOpacity={0.2}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#F59E0B"
+                          stopOpacity={0}
+                        />
                       </linearGradient>
                     </defs>
                     <CartesianGrid

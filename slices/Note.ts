@@ -5,6 +5,7 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 export const NoteSlice = createApi({
   reducerPath: "NoteSlice",
   baseQuery: customBaseQuery,
+  tagTypes: ["Note"],
   endpoints: (builder) => ({
     getNotes: builder.query<any, void>({
       query: () => ({
@@ -12,12 +13,14 @@ export const NoteSlice = createApi({
         method: "GET",
         params: { email: Config.defaultEmail },
       }),
+      providesTags: ["Note"],
     }),
     getPublicNotes: builder.query<any, void>({
       query: () => ({
         url: `/notes/public`,
         method: "GET",
       }),
+      providesTags: ["Note"],
     }),
     getNotesID: builder.query({
       query: (id) => ({
@@ -25,12 +28,14 @@ export const NoteSlice = createApi({
         method: "GET",
         params: { email: Config.defaultEmail },
       }),
+      providesTags: ["Note"],
     }),
     getPublicNotesID: builder.query({
       query: (id) => ({
         url: `/notes/public/${id}`,
         method: "GET",
       }),
+      providesTags: ["Note"],
     }),
     PostNotes: builder.mutation({
       query: (noteData) => ({
@@ -39,6 +44,7 @@ export const NoteSlice = createApi({
         body: noteData,
         params: { email: Config.defaultEmail },
       }),
+      invalidatesTags: ["Note"],
     }),
 
     postGroupNotes: builder.mutation({
@@ -48,6 +54,7 @@ export const NoteSlice = createApi({
         body: noteData,
         params: { email: Config.defaultEmail },
       }),
+      invalidatesTags: ["Note"],
     }),
     getGroupNotes: builder.query<any, string>({
       query: (groupId) => ({
@@ -57,6 +64,7 @@ export const NoteSlice = createApi({
           email: Config.defaultEmail,
         },
       }),
+      providesTags: ["Note"],
     }),
 
     updateNotes: builder.mutation({
@@ -67,6 +75,7 @@ export const NoteSlice = createApi({
         body: noteData,
         params: { email: Config.defaultEmail },
       }),
+      invalidatesTags: ["Note"],
     }),
 
     PostQuiz: builder.mutation({
@@ -76,6 +85,7 @@ export const NoteSlice = createApi({
         body: QuizNote,
         params: { email: Config.defaultEmail },
       }),
+      invalidatesTags: ["Note"],
     }),
     getQuizID: builder.query({
       query: (id) => ({
@@ -83,6 +93,7 @@ export const NoteSlice = createApi({
         method: "GET",
         // params: { email: "xiregev461@getasail.com" },
       }),
+      providesTags: ["Note"],
     }),
     playQuiz: builder.mutation({
       query: ({ quizId, answers }) => ({
@@ -91,6 +102,7 @@ export const NoteSlice = createApi({
         body: answers,
         params: { quizId, email: Config.defaultEmail },
       }),
+      invalidatesTags: ["Note"],
     }),
   }),
 });

@@ -6,7 +6,12 @@ import { usePathname, useRouter } from "next/navigation";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import { Menu, X } from "lucide-react";
-import { useGetUserProfileQuery } from "@/slices/Auth";
+import {
+  useGetUserProfileQuery,
+  useLazyGetUserProfileQuery,
+} from "@/slices/Auth";
+import { useDispatch } from "react-redux";
+import { setProfile } from "@/slices/profileSlice";
 
 export default function UserLayout({
   children,
@@ -20,7 +25,9 @@ export default function UserLayout({
   // Session gate: this endpoint relies on the httpOnly accessToken cookie set at login.
   // If it fails (no/expired session), bounce to login. Backend is the real guard; this is UX only.
   const { data: user, isLoading, isError } = useGetUserProfileQuery();
+  const dispatch = useDispatch();
 
+  const [getUserProfile] = useLazyGetUserProfileQuery();
   useEffect(() => {
     if (isError) router.replace("/login");
   }, [isError, router]);
@@ -30,6 +37,21 @@ export default function UserLayout({
     setIsSidebarOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const profile = await getUserProfile().unwrap();
+
+        if (profile) {
+          dispatch(setProfile(profile));
+        }
+      } catch (error) {
+        console.error("Failed to load profile:", error);
+      }
+    };
+
+    loadProfile();
+  }, [getUserProfile, dispatch]);
   // Lock body scroll and listen for 'Escape' key when mobile drawer is open
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

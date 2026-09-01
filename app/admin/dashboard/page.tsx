@@ -34,7 +34,11 @@ export default function DashboardPage() {
           />
           <StatCard
             title="Total Revenue"
-            value={isLoading ? "…" : `$${(data?.totalRevenue ?? 0).toLocaleString()}`}
+            value={
+              isLoading
+                ? "…"
+                : `Rs.${(data?.totalRevenue ?? 0).toLocaleString()}`
+            }
             icon={Banknote}
             iconColor="text-indigo-600"
             bgColor="bg-indigo-50"

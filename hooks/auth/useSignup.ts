@@ -60,7 +60,9 @@ export const useSignup = () => {
       setErrors({});
     }
   }, [formData]);
-  const onHandleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const onHandleSubmit = async (
+    e: React.MouseEvent<HTMLButtonElement> | React.SubmitEvent<HTMLFormElement>,
+  ) => {
     e.preventDefault();
 
     const result = signupSchema.safeParse(formData);
