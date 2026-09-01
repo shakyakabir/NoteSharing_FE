@@ -37,7 +37,7 @@ export default function PaymentHistoryPage() {
     id: p.id,
     date: fmtDate(p.createdAt ?? p.completedAt),
     invoiceId: p.transactionUuid,
-    amount: `$${p.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })}`,
+    amount: `Rs.${p.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })}`,
     plan: p.planName ?? p.paymentMethod,
     status: toStatus(p.status),
   }));

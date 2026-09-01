@@ -31,6 +31,10 @@ const SignupForm = () => {
     onHandleSubmit,
   } = useSignup();
 
+  const onHandleGoogleSignIn = () => {
+    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+  };
+
   return (
     <main className="h-screen overflow-hidden bg-[#F7F7FB]">
       <div className="grid h-full lg:grid-cols-[0.9fr_1.1fr]">
@@ -218,12 +222,21 @@ const SignupForm = () => {
             {/* Card */}
             <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-xl shadow-gray-200/40">
               {/* Social */}
-              <div className="grid grid-cols-2 gap-2">
-                <button
+
+              {/* Social login */}
+              <div className="space-y-3">
+                <Button
                   type="button"
-                  className="flex h-9 items-center justify-center gap-2 rounded-lg border border-gray-200 text-xs font-semibold text-gray-700 transition hover:bg-gray-50"
+                  onClick={onHandleGoogleSignIn}
+                  color="black"
+                  className="group flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 shadow-sm transition-all duration-200 hover:border-gray-300 hover:bg-gray-50 hover:shadow-md active:scale-[0.99]"
                 >
-                  <svg className="h-4 w-4" viewBox="0 0 24 24">
+                  {/* Google logo */}
+                  <svg
+                    className="h-5 w-5 shrink-0"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
                     <path
                       fill="#4285F4"
                       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -241,24 +254,10 @@ const SignupForm = () => {
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
-                  Google
-                </button>
 
-                <button
-                  type="button"
-                  className="flex h-9 items-center justify-center gap-2 rounded-lg border border-gray-200 text-xs font-semibold text-gray-700 transition hover:bg-gray-50"
-                >
-                  <svg
-                    className="h-4 w-4"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.49.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.46-1.11-1.46-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.03A9.56 9.56 0 0112 6.84c.85 0 1.7.11 2.5.34 1.91-1.3 2.75-1.03 2.75-1.03.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10.01 10.01 0 0022 12C22 6.48 17.52 2 12 2z" />
-                  </svg>
-                  GitHub
-                </button>
+                  <span className="text-black">Continue with Google</span>
+                </Button>
               </div>
-
               {/* Divider */}
               <div className="my-3.5 flex items-center gap-3">
                 <div className="h-px flex-1 bg-gray-200" />
@@ -267,7 +266,6 @@ const SignupForm = () => {
 
                 <div className="h-px flex-1 bg-gray-200" />
               </div>
-
               {/* Form */}
               <form onSubmit={onHandleSubmit} className="space-y-2.5">
                 {/* Name */}
@@ -411,7 +409,6 @@ const SignupForm = () => {
                   )}
                 </Button>
               </form>
-
               {/* Login */}
               <div className="mt-3 border-t border-gray-100 pt-3 text-center">
                 <p className="text-[10px] text-gray-500">

@@ -23,7 +23,7 @@ export default function Home() {
       {/* =========================================================
           TRUST / INTRO
       ========================================================= */}
-      <section className="border-y border-gray-200 bg-white py-8">
+      <section className="border-y border-gray-200 bg-white py-8" id="rewards">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-12 gap-y-4 px-4 text-center sm:px-6 lg:px-8">
           <p className="text-sm font-medium text-gray-500">
             Create better notes
@@ -50,7 +50,7 @@ export default function Home() {
       {/* =========================================================
           HOW IT WORKS
       ========================================================= */}
-      <section className="py-24">
+      <section className="py-24" id="features">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <span className="rounded-full bg-[#4235CE]/10 px-4 py-2 text-sm font-semibold text-[#4235CE]">
@@ -122,7 +122,7 @@ export default function Home() {
       {/* =========================================================
           FEATURES
       ========================================================= */}
-      <section id="features" className="bg-white py-24">
+      <section className="bg-white py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
             <span className="rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700">
@@ -221,7 +221,7 @@ export default function Home() {
       {/* =========================================================
           AI TOOLKIT
       ========================================================= */}
-      <section className="py-24">
+      <section className="py-24" id="ai-tools">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <span className="rounded-full bg-purple-100 px-4 py-2 text-sm font-semibold text-purple-700">

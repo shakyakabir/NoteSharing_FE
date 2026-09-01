@@ -68,7 +68,7 @@ export default function SubscriptionManagementPage() {
     return {
       id: p.id,
       name: p.name,
-      price: `$${p.price}`,
+      price: `Rs.${p.price}`,
       period: p.period,
       isCurrent,
       features: p.features,
@@ -176,9 +176,13 @@ export default function SubscriptionManagementPage() {
         {/* Overview & Usage */}
         <CurrentPlanCard
           currentPlanName={currentPlan?.name ?? sub?.plan ?? "—"}
-          price={currentPlan ? `${currentPlan.price}/${currentPlan.period}` : "—"}
+          price={
+            currentPlan ? `${currentPlan.price}/${currentPlan.period}` : "—"
+          }
           nextBillingDate={fmtDate(sub?.subscriptionEndDate)}
-          usedCredits={credits ? credits.maxCredits - credits.currentCredits : 0}
+          usedCredits={
+            credits ? credits.maxCredits - credits.currentCredits : 0
+          }
           totalCredits={credits?.maxCredits ?? 0}
           resetDays={credits?.daysUntilRefresh ?? 0}
           onUpgrade={() => {

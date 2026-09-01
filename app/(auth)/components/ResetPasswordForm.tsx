@@ -280,8 +280,8 @@ const ResetPasswordForm = () => {
                   <Input
                     name="otp"
                     type="text"
-                    inputMode="numeric"
-                    maxLength={6}
+                    // inputMode="numeric"
+                    // maxLength={6}
                     value={formData.otp}
                     onChange={handleChange}
                     placeHolder="123456"

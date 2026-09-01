@@ -294,7 +294,7 @@ export default function AvailablePlans() {
 
                     <div className="flex items-baseline gap-1">
                       <span className="text-3xl font-black text-slate-900">
-                        ${plan.price}
+                        Rs.{plan.price}
                       </span>
 
                       <span className="text-xs text-slate-400 font-medium">
@@ -575,12 +575,12 @@ export default function AvailablePlans() {
 
               {/* KHALTI */}
 
-              <button
+              {/* <button
                 disabled={isCheckoutLoading}
                 onClick={() => handlePayment("KHALTI")}
                 className="
                   w-full
-                  p-4
+                  p-4 
                   rounded-xl
                   border
                   border-slate-200
@@ -625,7 +625,7 @@ export default function AvailablePlans() {
                 ) : (
                   <span className="text-xs font-bold text-indigo-600">Pay</span>
                 )}
-              </button>
+              </button> */}
             </div>
 
             {/* =========================================== */}
